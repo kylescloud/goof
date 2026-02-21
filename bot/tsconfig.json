@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@config/*": ["src/config/*"],
+      "@discovery/*": ["src/discovery/*"],
+      "@dex/*": ["src/dex/*"],
+      "@graph/*": ["src/graph/*"],
+      "@strategies/*": ["src/strategies/*"],
+      "@simulation/*": ["src/simulation/*"],
+      "@execution/*": ["src/execution/*"],
+      "@oracle/*": ["src/oracle/*"],
+      "@multicall/*": ["src/multicall/*"],
+      "@providers/*": ["src/providers/*"],
+      "@alerting/*": ["src/alerting/*"],
+      "@metrics/*": ["src/metrics/*"],
+      "@utils/*": ["src/utils/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
