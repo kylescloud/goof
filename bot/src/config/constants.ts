@@ -226,8 +226,9 @@ export const AERODROME_CL_FACTORY_ABI = [
 
 export const AAVE_V3_POOL_ABI = [
   'function getReservesList() view returns (address[])',
-  'function getReserveData(address) view returns (tuple(tuple(uint256) configuration, uint128 liquidityIndex, uint128 currentLiquidityRate, uint128 variableBorrowIndex, uint128 currentVariableBorrowRate, uint128 currentStableBorrowRate, uint40 lastUpdateTimestamp, uint16 id, address aTokenAddress, address stableDebtTokenAddress, address variableDebtTokenAddress, address interestRateStrategyAddress, uint128 accruedToTreasury, uint128 unbacked, uint128 isolationModeTotalDebt))',
-  'function flashLoanSimple(address,address,uint256,bytes,uint16)',
+  'function getConfiguration(address asset) view returns (uint256)',
+  'function getReserveData(address asset) view returns (uint256 configuration, uint128 liquidityIndex, uint128 currentLiquidityRate, uint128 variableBorrowIndex, uint128 currentVariableBorrowRate, uint128 currentStableBorrowRate, uint40 lastUpdateTimestamp, uint16 id, address aTokenAddress, address stableDebtTokenAddress, address variableDebtTokenAddress, address interestRateStrategyAddress, uint128 accruedToTreasury, uint128 unbacked, uint128 isolationModeTotalDebt)',
+  'function flashLoanSimple(address receiverAddress, address asset, uint256 amount, bytes calldata params, uint16 referralCode)',
   'function FLASHLOAN_PREMIUM_TOTAL() view returns (uint128)',
 ] as const;
 
