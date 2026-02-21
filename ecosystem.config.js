@@ -1,0 +1,43 @@
+module.exports = {
+  apps: [
+    {
+      name: 'arb-bot',
+      script: './bot/dist/index.js',
+      interpreter: 'node',
+      interpreter_args: '--max-old-space-size=4096',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '2G',
+      env: {
+        NODE_ENV: 'production',
+      },
+      error_file: './bot/logs/pm2-error.log',
+      out_file: './bot/logs/pm2-out.log',
+      merge_logs: true,
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      restart_delay: 5000,
+      kill_timeout: 30000,
+      listen_timeout: 10000,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+    {
+      name: 'arb-metrics',
+      script: './bot/dist/metrics/PrometheusExporter.js',
+      interpreter: 'node',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '512M',
+      env: {
+        NODE_ENV: 'production',
+      },
+      error_file: './bot/logs/pm2-metrics-error.log',
+      out_file: './bot/logs/pm2-metrics-out.log',
+      merge_logs: true,
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      restart_delay: 3000,
+    },
+  ],
+};
