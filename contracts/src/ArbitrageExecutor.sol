@@ -310,7 +310,7 @@ contract ArbitrageExecutor is IFlashLoanSimpleReceiver {
         uint256 amountIn,
         uint256 stepIndex
     ) internal returns (uint256 amountOut) {
-        if (step.dexId <= 2 || step.dexId == 6 || step.dexId == 8) {
+        if (step.dexId == 0 || step.dexId == 2 || step.dexId == 6 || step.dexId == 8) {
             // V2-style DEXes: Uniswap V2 (0), SushiSwap V2 (2), BaseSwap V2 (6), SwapBased (8)
             amountOut = _executeV2Swap(step, amountIn);
         } else if (step.dexId == 1 || step.dexId == 3 || step.dexId == 7 || step.dexId == 9) {
@@ -511,7 +511,7 @@ contract ArbitrageExecutor is IFlashLoanSimpleReceiver {
         IArbitrageExecutor.SwapStep calldata step,
         uint256 amountIn
     ) internal view returns (uint256 amountOut) {
-        if (step.dexId <= 2 || step.dexId == 6 || step.dexId == 8) {
+        if (step.dexId == 0 || step.dexId == 2 || step.dexId == 6 || step.dexId == 8) {
             // V2-style simulation
             amountOut = _simulateV2Swap(step.pool, step.tokenIn, amountIn);
         } else if (step.dexId == 4) {
@@ -590,13 +590,30 @@ contract ArbitrageExecutor is IFlashLoanSimpleReceiver {
         // Suppress unused variable warning
         tokenOut;
 
-        // Read current sqrtPriceX96 and liquidity
-        (uint160 sqrtPriceX96,,,,,,) = abi.decode(
-            _staticCallPool(pool, abi.encodeWithSignature(
-                "slot0()"
-            )),
-            (uint160, int24, uint16, uint16, uint16, uint8, bool)
-        );
+        // Read current sqrtPriceX96 — try Uniswap V3 format (7 fields) first,
+        // then Aerodrome Slipstream format (6 fields, no feeProtocol uint8).
+        uint160 sqrtPriceX96;
+        {
+            bytes memory slot0Data = _staticCallPool(pool, abi.encodeWithSignature("slot0()"));
+            bool decoded = false;
+
+            // Try 7-field Uniswap V3 format: (uint160, int24, uint16, uint16, uint16, uint8, bool)
+            if (slot0Data.length >= 224) {
+                try this._decodeSlot0V3(slot0Data) returns (uint160 sqrtP) {
+                    sqrtPriceX96 = sqrtP;
+                    decoded = true;
+                } catch {}
+            }
+
+            // Fallback: 6-field Aerodrome Slipstream format: (uint160, int24, uint16, uint16, uint16, bool)
+            if (!decoded && slot0Data.length >= 192) {
+                try this._decodeSlot0Slipstream(slot0Data) returns (uint160 sqrtP) {
+                    sqrtPriceX96 = sqrtP;
+                } catch {
+                    return 0;
+                }
+            }
+        }
 
         uint128 liq = abi.decode(
             _staticCallPool(pool, abi.encodeWithSignature("liquidity()")),
@@ -631,6 +648,22 @@ contract ArbitrageExecutor is IFlashLoanSimpleReceiver {
             if (priceNum == 0) return 0;
             amountOut = (amountInAfterFee << 192) / priceNum;
         }
+    }
+
+    /**
+     * @notice Decodes slot0() in Uniswap V3 format (7 fields).
+     * @dev External so it can be called via try/catch from _simulateV3Approximate.
+     */
+    function _decodeSlot0V3(bytes calldata data) external pure returns (uint160 sqrtPriceX96) {
+        (sqrtPriceX96,,,,,,) = abi.decode(data, (uint160, int24, uint16, uint16, uint16, uint8, bool));
+    }
+
+    /**
+     * @notice Decodes slot0() in Aerodrome Slipstream format (6 fields, no feeProtocol).
+     * @dev External so it can be called via try/catch from _simulateV3Approximate.
+     */
+    function _decodeSlot0Slipstream(bytes calldata data) external pure returns (uint160 sqrtPriceX96) {
+        (sqrtPriceX96,,,,,) = abi.decode(data, (uint160, int24, uint16, uint16, uint16, bool));
     }
 
     /**
