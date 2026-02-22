@@ -1,15 +1,21 @@
 /**
  * @file TwoHopCrossDex.ts
  * @description Strategy 1: Simple Two-Hop Cross-DEX Arbitrage. Buy token A for token B on DEX X,
- *              sell token A for token B on DEX Y. Flash borrow token B. Evaluates all permutations
- *              of DEX pairs for each eligible pool-pair combination.
+ *              sell token A for token B on DEX Y. Flash borrow token B.
  *
- *              VERBOSE: Logs every candidate path scanned with full profit/loss details.
+ *              FIXES:
+ *              - Uses safeFlashAmountFromPool with hard caps
+ *              - Validates minimum pool liquidity before scanning
+ *              - Correct V3 price math with decimal adjustment
+ *              - Skips pools with zero/invalid reserves
  */
 
 import { BaseStrategy } from './BaseStrategy';
 import { pairKey } from '../utils/addressUtils';
 import { getAmountOut as v2GetAmountOut } from '../dex/math/V2Math';
+import { TOKEN_BY_ADDRESS } from '../config/addresses';
+import { MIN_V2_RESERVE_NORMALIZED } from '../config/constants';
+import { safeFlashAmountFromPool } from './flashAmountUtils';
 import type { ArbitragePath, GraphEdge } from '../graph/types';
 import type { PoolEntry } from '../discovery/types';
 
@@ -34,15 +40,13 @@ export class TwoHopCrossDex extends BaseStrategy {
 
     let candidateCount = 0;
 
-    // For each pair with multiple DEX pools, check cross-DEX arbitrage
     for (const [pairK, poolGroup] of pairPools) {
       if (poolGroup.length < 2) continue;
 
       this.logger.debug(`Pair ${pairK}: ${poolGroup.length} pools across DEXes`, {
-        dexes: poolGroup.map(p => `${p.dex}(${p.address.slice(0,8)})`).join(', '),
+        dexes: poolGroup.map(p => `${p.dex}(${p.address.slice(0, 8)})`).join(', '),
       });
 
-      // Try all ordered pairs of pools (buy on i, sell on j)
       for (let i = 0; i < poolGroup.length; i++) {
         for (let j = 0; j < poolGroup.length; j++) {
           if (i === j) continue;
@@ -51,38 +55,29 @@ export class TwoHopCrossDex extends BaseStrategy {
           const buyPool  = poolGroup[i];
           const sellPool = poolGroup[j];
 
-          // Determine flash asset (must be Aave-eligible)
+          // Skip pools with insufficient liquidity
+          if (!this._hasValidLiquidity(buyPool)) continue;
+          if (!this._hasValidLiquidity(sellPool)) continue;
+
           const flashAsset = buyPool.aaveAsset;
-          if (!flashAsset) {
-            this.logger.debug(`Skip: no Aave flash asset for pool ${buyPool.address.slice(0,10)} (${buyPool.dex})`);
-            continue;
-          }
+          if (!flashAsset) continue;
 
           const isBuyToken0 = buyPool.token0.address.toLowerCase() === flashAsset.toLowerCase();
           const tokenA      = isBuyToken0 ? buyPool.token1.address : buyPool.token0.address;
           const tokenB      = flashAsset;
-          const decimalsB   = isBuyToken0 ? buyPool.token0.decimals : buyPool.token1.decimals;
+          const decimalsB   = isBuyToken0 ? (buyPool.token0.decimals ?? 18) : (buyPool.token1.decimals ?? 18);
 
-          // Estimate flash loan amount
-          const flashAmount = this._estimateTradeSize(buyPool, flashAsset, decimalsB);
-          if (flashAmount === 0n) {
-            this.logger.debug(`Skip: zero flash amount for pool ${buyPool.address.slice(0,10)}`);
-            continue;
-          }
+          const tokenAInfo = TOKEN_BY_ADDRESS[tokenA.toLowerCase()];
+          const decimalsA  = tokenAInfo?.decimals ?? 18;
 
-          // Simulate: buy tokenA with tokenB on buyPool
-          const buyOutput = this._simulateSwap(buyPool, tokenB, tokenA, flashAmount);
-          if (buyOutput === 0n) {
-            this.logger.debug(`Skip: zero buy output on ${buyPool.dex} pool ${buyPool.address.slice(0,10)}`);
-            continue;
-          }
+          const flashAmount = safeFlashAmountFromPool(buyPool, flashAsset, decimalsB);
+          if (flashAmount === 0n) continue;
 
-          // Simulate: sell tokenA for tokenB on sellPool
-          const sellOutput = this._simulateSwap(sellPool, tokenA, tokenB, buyOutput);
-          if (sellOutput === 0n) {
-            this.logger.debug(`Skip: zero sell output on ${sellPool.dex} pool ${sellPool.address.slice(0,10)}`);
-            continue;
-          }
+          const buyOutput = this._simulateSwap(buyPool, tokenB, tokenA, flashAmount, decimalsB, decimalsA);
+          if (buyOutput === 0n) continue;
+
+          const sellOutput = this._simulateSwap(sellPool, tokenA, tokenB, buyOutput, decimalsA, decimalsB);
+          if (sellOutput === 0n) continue;
 
           candidateCount++;
           const label = `#${candidateCount} [${buyPool.token0.symbol}/${buyPool.token1.symbol}] ${buyPool.dex}→${sellPool.dex}`;
@@ -92,12 +87,10 @@ export class TwoHopCrossDex extends BaseStrategy {
             this._poolToEdge(sellPool, tokenA, tokenB),
           ];
 
-          // Full profit calculation (logs candidate details)
           const profit = await this.estimateNetProfitUsd(
             flashAsset, flashAmount, sellOutput, decimalsB, edges, label
           );
 
-          // Accept if net profit > 0 (threshold check is in simulation/execution layer)
           if (profit.netProfitUsd <= 0) continue;
 
           opportunities.push(this.createArbitragePath(
@@ -109,7 +102,6 @@ export class TwoHopCrossDex extends BaseStrategy {
       }
     }
 
-    // Sort by net profit descending
     opportunities.sort((a, b) => b.estimatedNetProfitUsd - a.estimatedNetProfitUsd);
 
     this.logger.info('Two-hop cross-DEX scan complete', {
@@ -120,8 +112,20 @@ export class TwoHopCrossDex extends BaseStrategy {
     return opportunities;
   }
 
-  private _simulateSwap(pool: PoolEntry, tokenIn: string, tokenOut: string, amountIn: bigint): bigint {
+  /**
+   * Simulates a swap with correct decimal handling for both V2 and V3 pools.
+   */
+  private _simulateSwap(
+    pool: PoolEntry,
+    tokenIn: string,
+    tokenOut: string,
+    amountIn: bigint,
+    decimalsIn: number,
+    decimalsOut: number
+  ): bigint {
     try {
+      if (amountIn === 0n) return 0n;
+
       if (pool.reserve0 && pool.reserve1) {
         const r0 = BigInt(pool.reserve0);
         const r1 = BigInt(pool.reserve1);
@@ -130,24 +134,28 @@ export class TwoHopCrossDex extends BaseStrategy {
         const isToken0In = tokenIn.toLowerCase() === pool.token0.address.toLowerCase();
         const reserveIn  = isToken0In ? r0 : r1;
         const reserveOut = isToken0In ? r1 : r0;
-        const fee        = pool.fee ?? 30;
+        const feeBps     = pool.fee ?? 30;
 
-        return v2GetAmountOut(amountIn, reserveIn, reserveOut, fee);
+        return v2GetAmountOut(amountIn, reserveIn, reserveOut, feeBps);
       }
 
       if (pool.sqrtPriceX96) {
         const sqrtPrice = BigInt(pool.sqrtPriceX96);
         if (sqrtPrice === 0n) return 0n;
-        const fee = pool.fee ?? 3000;
+
+        const feePpm = pool.fee ?? 3000;
+        const feeMultiplier = 1_000_000n - BigInt(feePpm);
         const zeroForOne = tokenIn.toLowerCase() === pool.token0.address.toLowerCase();
-        const amountInAfterFee = (amountIn * BigInt(1000000 - fee)) / 1000000n;
 
         if (zeroForOne) {
-          return (amountInAfterFee * sqrtPrice * sqrtPrice) >> 192n;
+          const numerator = amountIn * sqrtPrice * sqrtPrice * feeMultiplier;
+          const denominator = (1n << 192n) * 1_000_000n;
+          return numerator / denominator;
         } else {
-          const priceNum = sqrtPrice * sqrtPrice;
-          if (priceNum === 0n) return 0n;
-          return (amountInAfterFee << 192n) / priceNum;
+          const numerator = amountIn * (1n << 192n) * feeMultiplier;
+          const denominator = sqrtPrice * sqrtPrice * 1_000_000n;
+          if (denominator === 0n) return 0n;
+          return numerator / denominator;
         }
       }
 
@@ -157,20 +165,19 @@ export class TwoHopCrossDex extends BaseStrategy {
     }
   }
 
-  private _estimateTradeSize(pool: PoolEntry, flashAsset: string, decimals: number): bigint {
+  private _hasValidLiquidity(pool: PoolEntry): boolean {
     if (pool.reserve0 && pool.reserve1) {
-      const isToken0 = pool.token0.address.toLowerCase() === flashAsset.toLowerCase();
-      const reserve  = BigInt(isToken0 ? pool.reserve0 : pool.reserve1);
-      if (reserve === 0n) return 0n;
-      return reserve / 50n; // 2% of reserve
+      const r0 = BigInt(pool.reserve0);
+      const r1 = BigInt(pool.reserve1);
+      if (r0 === 0n || r1 === 0n) return false;
+      const dec0 = pool.token0.decimals ?? 18;
+      const normalizedR0 = dec0 >= 18 ? r0 : r0 * (10n ** BigInt(18 - dec0));
+      return normalizedR0 >= MIN_V2_RESERVE_NORMALIZED;
     }
-    if (pool.sqrtPriceX96 && pool.liquidity) {
-      const liq = BigInt(pool.liquidity);
-      if (liq === 0n) return 10n ** BigInt(decimals) * 1000n;
-      return liq / 1000n; // 0.1% of liquidity
+    if (pool.sqrtPriceX96) {
+      return BigInt(pool.sqrtPriceX96) > 0n;
     }
-    // Default: $1000 equivalent
-    return 10n ** BigInt(decimals) * 1000n;
+    return false;
   }
 
   private _poolToEdge(pool: PoolEntry, from: string, to: string): GraphEdge {
@@ -182,10 +189,10 @@ export class TwoHopCrossDex extends BaseStrategy {
       dexName:      pool.dex,
       fee:          pool.fee ?? 30,
       weight:       0,
-      reserve0:     pool.reserve0  ? BigInt(pool.reserve0)  : undefined,
-      reserve1:     pool.reserve1  ? BigInt(pool.reserve1)  : undefined,
+      reserve0:     pool.reserve0     ? BigInt(pool.reserve0)     : undefined,
+      reserve1:     pool.reserve1     ? BigInt(pool.reserve1)     : undefined,
       sqrtPriceX96: pool.sqrtPriceX96 ? BigInt(pool.sqrtPriceX96) : undefined,
-      liquidity:    pool.liquidity ? BigInt(pool.liquidity) : undefined,
+      liquidity:    pool.liquidity    ? BigInt(pool.liquidity)    : undefined,
       tick:         pool.tick ?? undefined,
     };
   }

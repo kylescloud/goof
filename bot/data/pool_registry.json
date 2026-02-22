@@ -1,10 +1,1 @@
-{
-  "meta": {
-    "chainId": 8453,
-    "lastIndexedBlock": 0,
-    "lastUpdatedTimestamp": "1970-01-01T00:00:00.000Z",
-    "totalPools": 0,
-    "aaveAssets": []
-  },
-  "pools": {}
-}
+{"meta":{"chainId":8453,"lastIndexedBlock":0,"lastUpdatedTimestamp":"2024-01-01T00:00:00.000Z","totalPools":0,"aaveAssets":[]},"pools":{}}

@@ -19,6 +19,7 @@ import type { OracleRegistry } from '../oracle/OracleRegistry';
 import type { ArbitragePath, GraphEdge } from '../graph/types';
 import type { IStrategy, SwapStepParams } from './types';
 import { fromBigInt } from '../utils/bigIntMath';
+import { safeFlashAmountFromV2Edge, safeFlashAmountFromV3Edge } from './flashAmountUtils';
 import { createModuleLogger } from '../utils/logger';
 
 // ─── Verbose opportunity logging ─────────────────────────────────────────────
@@ -89,30 +90,18 @@ export abstract class BaseStrategy implements IStrategy {
 
   /**
    * Estimates the flash loan amount based on pool liquidity.
+   * Uses hard per-token caps to prevent absurd amounts from low-liquidity pools.
    */
   protected estimateFlashLoanAmount(edges: GraphEdge[], flashAssetDecimals: number): bigint {
-    // Use 1-5% of the smallest pool's liquidity as the flash loan amount
-    let minLiquidity = BigInt(Number.MAX_SAFE_INTEGER);
+    if (edges.length === 0) return 0n;
+    const flashAsset = edges[0].from;
 
-    for (const edge of edges) {
-      if (edge.reserve0 && edge.reserve1) {
-        const relevantReserve = edge.from === edges[0].from ? edge.reserve0 : edge.reserve1;
-        if (relevantReserve < minLiquidity) {
-          minLiquidity = relevantReserve;
-        }
-      } else if (edge.liquidity) {
-        if (edge.liquidity < minLiquidity) {
-          minLiquidity = edge.liquidity;
-        }
-      }
+    // Use the first edge to determine flash amount
+    const firstEdge = edges[0];
+    if (firstEdge.reserve0 && firstEdge.reserve1) {
+      return safeFlashAmountFromV2Edge(firstEdge, flashAsset, flashAssetDecimals);
     }
-
-    // Use 2% of min liquidity, capped at reasonable amounts
-    const flashAmount = minLiquidity / 50n;
-
-    // Cap at $100k equivalent
-    const maxAmount = 10n ** BigInt(flashAssetDecimals) * 100000n;
-    return flashAmount < maxAmount ? flashAmount : maxAmount;
+    return safeFlashAmountFromV3Edge(flashAsset, flashAssetDecimals);
   }
 
   /**
@@ -249,7 +238,8 @@ export abstract class BaseStrategy implements IStrategy {
 
     // Build path string: TOKEN_A -[DEX fee%]-> TOKEN_B -[DEX fee%]-> TOKEN_C
     const pathStr = edges.map((e, i) => {
-      const feeStr = e.fee >= 100 ? `${(e.fee / 10000 * 100).toFixed(2)}%` : `${e.fee}bps`;
+      // fee is in ppm (e.g. 3000 = 0.3%, 500 = 0.05%, 100 = 0.01%, 9 = 0.0009%)
+      const feeStr = `${(e.fee / 10000).toFixed(4)}%`;
       const fromShort = e.from.slice(0, 6) + '…' + e.from.slice(-4);
       const toShort   = e.to.slice(0, 6)   + '…' + e.to.slice(-4);
       const poolShort = e.poolAddress.slice(0, 8) + '…';

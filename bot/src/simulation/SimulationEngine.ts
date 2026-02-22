@@ -19,8 +19,9 @@ import { OracleRegistry } from '../oracle/OracleRegistry';
 import { TOKEN_BY_ADDRESS } from '../config/addresses';
 import { FLASH_LOAN_PREMIUM_BPS, FLASH_LOAN_PREMIUM_DIVISOR } from '../config/constants';
 import { fromBigInt } from '../utils/bigIntMath';
+import { getAmountOut as v2GetAmountOut } from '../dex/math/V2Math';
 import { createModuleLogger } from '../utils/logger';
-import type { ArbitragePath } from '../graph/types';
+import type { ArbitragePath, GraphEdge } from '../graph/types';
 import type { SimulationResult } from './types';
 
 const logger = createModuleLogger('SimulationEngine');
@@ -232,6 +233,9 @@ export class SimulationEngine extends EventEmitter {
         return null;
       }
 
+      // Compute per-step output amounts for per-step minAmountOut in TransactionBuilder
+      const stepOutputs = this._computeStepOutputs(path.edges, path.flashAmount);
+
       return {
         path,
         isProfitable: profitBreakdown.isProfitable,
@@ -244,6 +248,7 @@ export class SimulationEngine extends EventEmitter {
         totalRepayment: path.flashAmount + profitBreakdown.flashLoanPremium,
         expectedReturn,
         simulationMethod,
+        stepOutputs,
         timestamp: Date.now(),
         blockNumber,
       };
@@ -281,5 +286,52 @@ export class SimulationEngine extends EventEmitter {
     this.provider = provider;
     this.onChainSimulator.updateProvider(provider);
     this.gasEstimator.updateProvider(provider);
+  }
+
+  /**
+   * Computes per-step simulated output amounts using local AMM math.
+   * Used by TransactionBuilder to set per-step minAmountOut (1% slippage buffer).
+   */
+  private _computeStepOutputs(edges: GraphEdge[], flashAmount: bigint): bigint[] {
+    const outputs: bigint[] = [];
+    let currentAmount = flashAmount;
+
+    for (const edge of edges) {
+      try {
+        let amountOut = 0n;
+
+        if (edge.reserve0 && edge.reserve1 && edge.reserve0 > 0n && edge.reserve1 > 0n) {
+          // V2 AMM math
+          const isToken0In = edge.from.toLowerCase() < edge.to.toLowerCase();
+          const reserveIn  = isToken0In ? edge.reserve0 : edge.reserve1;
+          const reserveOut = isToken0In ? edge.reserve1 : edge.reserve0;
+          const feeBps = Math.round((edge.fee / 1_000_000) * 10_000); // ppm → bps
+          amountOut = v2GetAmountOut(currentAmount, reserveIn, reserveOut, feeBps);
+        } else if (edge.sqrtPriceX96 && edge.sqrtPriceX96 > 0n) {
+          // V3 single-tick approximation
+          const feePpm = BigInt(edge.fee);
+          const feeMultiplier = 1_000_000n - feePpm;
+          const amountInAfterFee = (currentAmount * feeMultiplier) / 1_000_000n;
+          const zeroForOne = edge.from.toLowerCase() < edge.to.toLowerCase();
+
+          if (zeroForOne) {
+            const priceNum = edge.sqrtPriceX96 * edge.sqrtPriceX96;
+            amountOut = (amountInAfterFee * priceNum) >> 192n;
+          } else {
+            const priceNum = edge.sqrtPriceX96 * edge.sqrtPriceX96;
+            if (priceNum > 0n) {
+              amountOut = (amountInAfterFee << 192n) / priceNum;
+            }
+          }
+        }
+
+        outputs.push(amountOut);
+        currentAmount = amountOut > 0n ? amountOut : currentAmount;
+      } catch {
+        outputs.push(0n);
+      }
+    }
+
+    return outputs;
   }
 }

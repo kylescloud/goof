@@ -26,9 +26,11 @@ const V2_RESERVES_ABI = [
 const V3_SLOT0_ABI = [
   'function slot0() view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)',
   'function liquidity() view returns (uint128)',
+  'function tickSpacing() view returns (int24)',
 ];
 const AERODROME_RESERVES_ABI = [
   'function getReserves() view returns (uint256 reserve0, uint256 reserve1, uint256 blockTimestampLast)',
+  'function stable() view returns (bool)',
 ];
 const MULTICALL3_ABI = [
   'function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[] returnData)',
@@ -182,6 +184,8 @@ export class PoolRegistryWriter {
       sqrtPriceX96: string | null;
       liquidity: string | null;
       tick: number | null;
+      stable: boolean | undefined;
+      tickSpacing: number | undefined;
     }>();
 
     for (let i = 0; i < toAdd.length; i += BATCH) {
@@ -216,6 +220,10 @@ export class PoolRegistryWriter {
         token0:     { address: token0Info.address, symbol: token0Info.symbol, decimals: token0Info.decimals },
         token1:     { address: token1Info.address, symbol: token1Info.symbol, decimals: token1Info.decimals },
         fee:        rawPool.fee ?? null,
+        // For Aerodrome Classic: prefer on-chain stable() result, fall back to seed pool hint
+        stable:     state?.stable !== undefined ? state.stable : rawPool.stable,
+        // For Aerodrome Slipstream: prefer on-chain tickSpacing() result, fall back to seed pool hint
+        tickSpacing: state?.tickSpacing !== undefined ? state.tickSpacing : rawPool.tickSpacing,
         aaveAsset,
         liquidity:  state?.liquidity  ?? '0',
         sqrtPriceX96: state?.sqrtPriceX96 ?? null,
@@ -291,14 +299,18 @@ export class PoolRegistryWriter {
       sqrtPriceX96: string | null;
       liquidity: string | null;
       tick: number | null;
+      stable: boolean | undefined;
+      tickSpacing: number | undefined;
     }>
   ): Promise<void> {
     try {
       const multicall = new ethers.Contract(MULTICALL3, MULTICALL3_ABI, this.provider);
 
       // Build calls: for V2 pools call getReserves(), for V3 pools call slot0() + liquidity()
+      // For Aerodrome Classic pools also call stable()
+      // For Aerodrome Slipstream pools also call tickSpacing()
       const calls: { target: string; allowFailure: boolean; callData: string }[] = [];
-      const callIndex: { poolIdx: number; type: 'v2reserves' | 'v3slot0' | 'v3liquidity' | 'aeroreserves' }[] = [];
+      const callIndex: { poolIdx: number; type: 'v2reserves' | 'v3slot0' | 'v3liquidity' | 'aeroreserves' | 'aerostable' | 'v3tickspacing' }[] = [];
 
       for (let i = 0; i < pools.length; i++) {
         const pool = pools[i];
@@ -309,6 +321,9 @@ export class PoolRegistryWriter {
             // Aerodrome returns uint256 reserves
             calls.push({ target: addr, allowFailure: true, callData: aeroIface.encodeFunctionData('getReserves') });
             callIndex.push({ poolIdx: i, type: 'aeroreserves' });
+            // Also fetch stable() flag
+            calls.push({ target: addr, allowFailure: true, callData: aeroIface.encodeFunctionData('stable') });
+            callIndex.push({ poolIdx: i, type: 'aerostable' });
           } else {
             // Standard Uniswap V2 style
             calls.push({ target: addr, allowFailure: true, callData: v2Iface.encodeFunctionData('getReserves') });
@@ -320,6 +335,11 @@ export class PoolRegistryWriter {
           callIndex.push({ poolIdx: i, type: 'v3slot0' });
           calls.push({ target: addr, allowFailure: true, callData: v3Iface.encodeFunctionData('liquidity') });
           callIndex.push({ poolIdx: i, type: 'v3liquidity' });
+          // For Aerodrome Slipstream, also fetch tickSpacing()
+          if (pool.dexName === 'Aerodrome Slipstream') {
+            calls.push({ target: addr, allowFailure: true, callData: v3Iface.encodeFunctionData('tickSpacing') });
+            callIndex.push({ poolIdx: i, type: 'v3tickspacing' });
+          }
         }
       }
 
@@ -332,6 +352,7 @@ export class PoolRegistryWriter {
         stateMap.set(pool.address.toLowerCase(), {
           reserve0: null, reserve1: null,
           sqrtPriceX96: null, liquidity: null, tick: null,
+          stable: undefined, tickSpacing: undefined,
         });
       }
 
@@ -354,6 +375,9 @@ export class PoolRegistryWriter {
             const decoded = aeroIface.decodeFunctionResult('getReserves', returnData);
             state.reserve0 = decoded[0].toString();
             state.reserve1 = decoded[1].toString();
+          } else if (type === 'aerostable') {
+            const decoded = aeroIface.decodeFunctionResult('stable', returnData);
+            state.stable = Boolean(decoded[0]);
           } else if (type === 'v3slot0') {
             const decoded = v3Iface.decodeFunctionResult('slot0', returnData);
             state.sqrtPriceX96 = decoded[0].toString();
@@ -361,6 +385,9 @@ export class PoolRegistryWriter {
           } else if (type === 'v3liquidity') {
             const decoded = v3Iface.decodeFunctionResult('liquidity', returnData);
             state.liquidity = decoded[0].toString();
+          } else if (type === 'v3tickspacing') {
+            const decoded = v3Iface.decodeFunctionResult('tickSpacing', returnData);
+            state.tickSpacing = Number(decoded[0]);
           }
         } catch (decodeErr) {
           logger.debug('Failed to decode pool state', {

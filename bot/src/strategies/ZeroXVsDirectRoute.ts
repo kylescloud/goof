@@ -83,7 +83,9 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
     targetDecimals: number,
     label: string
   ): Promise<ArbitragePath | null> {
-    const flashAmount = 10n ** BigInt(flashDecimals) * 1000n; // $1000 equivalent
+    // Use safe flash amount with hard caps
+    const { getFlashAmountCap } = require('./flashAmountUtils');
+    const flashAmount = getFlashAmountCap(flashAsset) / 10n; // Use 10% of cap as conservative amount
 
     // Get best direct DEX route: flash -> target
     const directEdges = this.graph.getEdgesBetween(flashAsset.toLowerCase(), targetToken.toLowerCase());

@@ -113,26 +113,37 @@ export class ThreeHopTriangular extends BaseStrategy {
 
   private _localSimulate(edge: GraphEdge, amountIn: bigint): bigint {
     try {
+      if (amountIn === 0n) return 0n;
+
       if (edge.reserve0 && edge.reserve1) {
         const isToken0In = edge.from < edge.to;
         const reserveIn  = isToken0In ? edge.reserve0 : edge.reserve1;
         const reserveOut = isToken0In ? edge.reserve1 : edge.reserve0;
-        const fee = edge.fee <= 100 ? edge.fee : 30;
+        if (reserveIn === 0n || reserveOut === 0n) return 0n;
+        const feeBps = edge.fee <= 10000 ? edge.fee : 30;
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { getAmountOut } = require('../dex/math/V2Math');
-        return getAmountOut(amountIn, reserveIn, reserveOut, fee);
+        return getAmountOut(amountIn, reserveIn, reserveOut, feeBps);
       }
 
       if (edge.sqrtPriceX96 && edge.sqrtPriceX96 > 0n) {
-        const fee = edge.fee > 100 ? edge.fee : 3000;
-        const zeroForOne = edge.from < edge.to;
-        const amountInAfterFee = (amountIn * BigInt(1000000 - fee)) / 1000000n;
+        // edge.fee is already stored in ppm (e.g. 3000 = 0.3%, 500 = 0.05%, 9 = 0.0009%)
+        const feePpm = edge.fee;
+        const feeMultiplier = 1_000_000n - BigInt(feePpm);
+        const zeroForOne = edge.from.toLowerCase() < edge.to.toLowerCase();
+
+        // For triangular arb, tokens in the same path typically have same decimals
+        // Use 1:1 decimal ratio (no adjustment needed for same-decimal pairs)
         if (zeroForOne) {
-          return (amountInAfterFee * edge.sqrtPriceX96 * edge.sqrtPriceX96) >> 192n;
+          const numerator = amountIn * edge.sqrtPriceX96 * edge.sqrtPriceX96 * feeMultiplier;
+          const denominator = (1n << 192n) * 1_000_000n;
+          return numerator / denominator;
         } else {
           const priceNum = edge.sqrtPriceX96 * edge.sqrtPriceX96;
           if (priceNum === 0n) return 0n;
-          return (amountInAfterFee << 192n) / priceNum;
+          const numerator = amountIn * (1n << 192n) * feeMultiplier;
+          const denominator = priceNum * 1_000_000n;
+          return numerator / denominator;
         }
       }
       return 0n;

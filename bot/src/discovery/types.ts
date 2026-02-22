@@ -18,6 +18,8 @@ export interface PoolEntry {
   token0: TokenMeta;
   token1: TokenMeta;
   fee: number | null;
+  stable?: boolean;        // Aerodrome Classic: true = stable pool, false = volatile pool
+  tickSpacing?: number;    // Aerodrome Slipstream: tick spacing (1, 100, 200, etc.)
   aaveAsset: string;
   liquidity: string;
   sqrtPriceX96: string | null;
@@ -72,6 +74,8 @@ export interface RawPoolData {
   token0: string;
   token1: string;
   fee?: number;
+  stable?: boolean;        // Aerodrome Classic: true = stable pool, false = volatile pool
+  tickSpacing?: number;    // Aerodrome Slipstream: tick spacing (1, 100, 200, etc.)
   dexName: string;
   version: ProtocolVersion;
 }

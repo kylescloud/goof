@@ -9,14 +9,15 @@ export interface GraphEdge {
   poolAddress: string;    // Pool contract address
   dexId: number;          // DEX identifier
   dexName: string;        // DEX name
-  fee: number;            // Fee in bps or fee tier
+  fee: number;            // Fee in ppm (e.g. 3000 = 0.3%, 500 = 0.05%)
   weight: number;         // Log-transformed weight for Bellman-Ford
   reserve0?: bigint;      // V2 reserve of token0
   reserve1?: bigint;      // V2 reserve of token1
   sqrtPriceX96?: bigint;  // V3 sqrt price
   liquidity?: bigint;     // V3 liquidity or TVL indicator
   tick?: number;          // V3 current tick
-  stable?: boolean;       // Aerodrome stable flag
+  stable?: boolean;       // Aerodrome Classic: stable pool flag
+  tickSpacing?: number;   // Aerodrome Slipstream: tick spacing
 }
 
 export interface ArbitrageCycle {

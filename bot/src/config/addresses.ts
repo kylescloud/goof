@@ -88,6 +88,63 @@ export const TOKENS: Record<string, TokenInfo> = {
     symbol: 'WBTC',
     decimals: 8,
   },
+  // ─── New Aave V3 flash loan assets ───
+  weETH: {
+    address: '0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A',
+    symbol: 'weETH',
+    decimals: 18,
+  },
+  ezETH: {
+    address: '0x2416092f143378750bb29b79eD961ab195CcEea5',
+    symbol: 'ezETH',
+    decimals: 18,
+  },
+  GHO: {
+    address: '0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee',
+    symbol: 'GHO',
+    decimals: 18,
+  },
+  wrsETH: {
+    address: '0xEDfa23602D0EC14714057867A78d01e94176BEA0',
+    symbol: 'wrsETH',
+    decimals: 18,
+  },
+  EURC: {
+    address: '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42',
+    symbol: 'EURC',
+    decimals: 6,
+  },
+  AERO: {
+    address: '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
+    symbol: 'AERO',
+    decimals: 18,
+  },
+  tBTC: {
+    address: '0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b',
+    symbol: 'tBTC',
+    decimals: 18,
+  },
+  // ─── High-volume non-Aave tokens for routing ───
+  DEGEN: {
+    address: '0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed',
+    symbol: 'DEGEN',
+    decimals: 18,
+  },
+  BRETT: {
+    address: '0x532f27101965dd16442E59d40670FaF5eBB142E4',
+    symbol: 'BRETT',
+    decimals: 18,
+  },
+  TOSHI: {
+    address: '0xAC1Bd2486aAf3B5C0fc3Fd868558b082a531B2B4',
+    symbol: 'TOSHI',
+    decimals: 18,
+  },
+  WELL: {
+    address: '0xA88594D404727625A9437C3f886C7643872296AE',
+    symbol: 'WELL',
+    decimals: 18,
+  },
 } as const;
 
 // Build reverse lookup: address -> TokenInfo
@@ -102,6 +159,8 @@ export const STABLECOINS: string[] = [
   TOKENS.USDbC.address,
   TOKENS.USDT.address,
   TOKENS.DAI.address,
+  TOKENS.EURC.address,
+  TOKENS.GHO.address,
 ];
 
 // ─── DEX Addresses ──────────────────────────────────────────────────────
@@ -122,7 +181,7 @@ export const DEX_ADDRESSES = {
 
   // 2: SushiSwap V2
   sushiswapV2: {
-    factory: '0x71524B4f93c58fcbF659783fCeE636fSb60db29',
+    factory: '0x71524B4f93c58fcbF659783284e38825f0622859',
     router: '0x6BDED42c6DA8FBf0d2bA55B2fa120C5e0c8D7891',
   } as DexAddresses,
 

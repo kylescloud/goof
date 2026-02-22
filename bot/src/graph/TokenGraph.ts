@@ -172,7 +172,8 @@ export class TokenGraph {
       sqrtPriceX96: pool.sqrtPriceX96 ? BigInt(pool.sqrtPriceX96) : undefined,
       liquidity: pool.liquidity ? BigInt(pool.liquidity) : undefined,
       tick: pool.tick ?? undefined,
-      stable: pool.version === ProtocolVersion.V2 ? undefined : undefined,
+      stable: pool.stable,
+      tickSpacing: pool.tickSpacing,
     };
 
     // Reverse edge: token1 -> token0

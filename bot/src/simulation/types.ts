@@ -20,6 +20,7 @@ export interface SimulationResult {
   simulationMethod: 'on-chain' | 'local' | 'off-chain-unverified';
   timestamp: number;
   blockNumber: number;
+  stepOutputs?: bigint[];   // Per-step simulated output amounts (for per-step minAmountOut)
   error?: string;
 }
 

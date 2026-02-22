@@ -111,6 +111,48 @@ export const MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342n
 export const FLASH_LOAN_PREMIUM_BPS = 5n;
 export const FLASH_LOAN_PREMIUM_DIVISOR = 10000n;
 
+// ─── Flash Amount Caps (per token, in token native units) ─────────────────────
+// Hard caps to prevent absurd flash amounts from low-liquidity pools.
+// These are conservative maximums — real profitable arb rarely needs more.
+export const FLASH_AMOUNT_CAPS: Record<string, bigint> = {
+  // Stablecoins: max $50,000
+  '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913': 50_000n * 10n ** 6n,   // USDC
+  '0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca': 50_000n * 10n ** 6n,   // USDbC
+  '0xfde4c96c8593536e31f229ea8f37b2ada2699bb2': 50_000n * 10n ** 6n,   // USDT
+  '0x50c5725949a6f0c72e6c4a641f24049a917db0cb': 50_000n * 10n ** 18n,  // DAI
+  // ETH-like: max 20 ETH (~$40k)
+  '0x4200000000000000000000000000000000000006': 20n * 10n ** 18n,       // WETH
+  '0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22': 20n * 10n ** 18n,      // cbETH
+  '0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452': 20n * 10n ** 18n,      // wstETH
+  '0xb6fe221fe9eeef5aba221c348ba20a1bf5e73624c': 20n * 10n ** 18n,     // rETH
+  // BTC-like: max 0.5 BTC (~$34k)
+  '0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf': 5n * 10n ** 7n,        // cbBTC (8 dec)
+  '0x0555e30da8f98308edb960aa94c0db47230d2b9c': 5n * 10n ** 7n,        // WBTC (8 dec)
+  '0x236aa50979d5f3de3bd1eeb40e81137f22ab794b': 5n * 10n ** 17n,       // tBTC (18 dec, 0.5 BTC)
+  // New Aave assets: ETH-like LSTs
+  '0x04c0599ae5a44757c0af6f9ec3b93da8976c150a': 20n * 10n ** 18n,      // weETH
+  '0x2416092f143378750bb29b79ed961ab195cceea5': 20n * 10n ** 18n,      // ezETH
+  '0xedfa23602d0ec14714057867a78d01e94176bea0': 20n * 10n ** 18n,      // wrsETH
+  // Stablecoins
+  '0x6bb7a212910682dcfdbd5bcbb3e28fb4e8da10ee': 50_000n * 10n ** 18n,  // GHO (18 dec)
+  '0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42': 50_000n * 10n ** 6n,   // EURC (6 dec)
+  // High-volume tokens
+  '0x940181a94a35a4569e4529a3cdfb74e38fd98631': 50_000n * 10n ** 18n,  // AERO
+};
+
+// Default flash amount cap for unknown tokens: 10,000 units (18-decimal)
+export const DEFAULT_FLASH_AMOUNT_CAP_18 = 10_000n * 10n ** 18n;
+
+// Minimum pool liquidity (USD) to consider for arbitrage
+// Pools below this produce garbage price quotes
+export const MIN_POOL_LIQUIDITY_USD = 1_000; // $1,000 minimum TVL
+
+// Minimum V2 reserve (normalized to 18 decimals) to consider a pool valid
+export const MIN_V2_RESERVE_NORMALIZED = 100n * 10n ** 18n;
+
+// Maximum price divergence in bps to scan (above this = broken/stale pool)
+export const MAX_DIVERGENCE_BPS = 2000; // 20% max
+
 // ─── Gas Constants ──────────────────────────────────────────────────────
 // Estimated gas per swap type (calibrated from historical executions)
 export const GAS_PER_V2_SWAP = 150_000n;
