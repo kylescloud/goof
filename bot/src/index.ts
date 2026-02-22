@@ -37,6 +37,7 @@ let executionEngine: ExecutionEngine;
 let alertManager: AlertManager;
 let metricsCollector: MetricsCollector;
 let prometheusExporter: PrometheusExporter;
+let oracleRegistryGlobal: OracleRegistry; // global ref for prefetch in cycle
 
 // ─── Main Bootstrap ─────────────────────────────────────────────────────
 
@@ -75,6 +76,11 @@ async function main(): Promise<void> {
     provider,
     config.maxOracleStalenessSeconds,
     config.priceCacheTtlMs
+  );
+  oracleRegistryGlobal = oracleRegistry;
+  // Pre-warm oracle cache on startup
+  await oracleRegistry.prefetchAllPrices().catch((e) =>
+    logger.warn('Oracle prefetch on startup failed', { error: (e as Error).message })
   );
   logger.info('Oracle registry initialized');
 
@@ -199,6 +205,9 @@ async function main(): Promise<void> {
 
 async function runArbitrageCycle(blockInfo: BlockInfo, config: Config): Promise<void> {
   const cycleStart = Date.now();
+
+  // 0. Prefetch oracle prices (batched Multicall3 — no-op if cache is fresh)
+  await oracleRegistryGlobal.prefetchAllPrices().catch(() => {/* non-fatal */});
 
   // 1. Run all strategies
   const candidates = await strategyEngine.runCycle();

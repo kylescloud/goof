@@ -92,6 +92,20 @@ export class ExecutionEngine extends EventEmitter {
    */
   async execute(simulations: SimulationResult[]): Promise<ExecutionResult | null> {
     if (simulations.length === 0) return null;
+
+    // Guard: contract must be deployed
+    const zeroAddr = '0x0000000000000000000000000000000000000000';
+    if (
+      !this.config.arbitrageExecutorAddress ||
+      this.config.arbitrageExecutorAddress === zeroAddr
+    ) {
+      logger.warn(
+        'Execution skipped — ArbitrageExecutor contract not deployed. ' +
+        'Set ARBITRAGE_EXECUTOR_ADDRESS in .env after deploying the contract.'
+      );
+      return null;
+    }
+
     if (this.executing) {
       logger.warn('Execution already in progress, skipping');
       return null;

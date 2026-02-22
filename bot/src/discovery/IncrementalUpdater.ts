@@ -70,8 +70,20 @@ export class IncrementalUpdater {
           logger.info(`${config.dexName}: found ${pools.length} new pools`);
         }
       } catch (error) {
+        const errMsg = (error as Error).message || '';
+        // Silently skip if RPC doesn't support eth_getLogs (free tier / public node)
+        if (
+          errMsg.includes('block range') ||
+          errMsg.includes('Free tier') ||
+          errMsg.includes('-32600') ||
+          errMsg.includes('-32011') ||
+          errMsg.includes('no backend')
+        ) {
+          logger.debug(`Incremental update skipped for ${config.dexName} — eth_getLogs unavailable on this RPC`);
+          continue;
+        }
         logger.error(`Incremental update failed for ${config.dexName}`, {
-          error: (error as Error).message,
+          error: errMsg.slice(0, 120),
         });
       }
     }

@@ -119,10 +119,14 @@ export class GasEstimator {
   private async _getEthPriceUsd(): Promise<number> {
     try {
       const price = await this.oracleRegistry.getTokenPriceUSD(TOKENS.WETH.address);
-      return price.priceUsd;
+      // Sanity check: ETH price should be between $100 and $100,000
+      if (price.priceUsd > 100 && price.priceUsd < 100_000) {
+        return price.priceUsd;
+      }
     } catch {
-      return 3000; // Fallback ETH price
+      // fall through to default
     }
+    return 2000; // Conservative fallback ETH price
   }
 
   /**

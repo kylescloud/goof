@@ -4,14 +4,15 @@
  *              then compares it against the best direct DEX route. If the 0x quote is significantly
  *              better or worse, constructs an arb path using the cheaper route for buying and the
  *              more expensive route for selling.
+ *
+ *              VERBOSE: Logs every candidate path scanned with full profit/loss details.
  */
 
 import { BaseStrategy } from './BaseStrategy';
 import { DexId } from '../config/constants';
-import { TOKENS, TOKEN_BY_ADDRESS } from '../config/addresses';
+import { TOKEN_BY_ADDRESS } from '../config/addresses';
 import { ZeroXAdapter } from '../dex/adapters/ZeroXAdapter';
 import type { ArbitragePath, GraphEdge } from '../graph/types';
-import type { PoolEntry } from '../discovery/types';
 
 export class ZeroXVsDirectRoute extends BaseStrategy {
   readonly name = '0x vs Direct Route';
@@ -36,12 +37,14 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
     const opportunities: ArbitragePath[] = [];
     const aaveAssets = this.registry.meta.aaveAssets;
 
-    // For each Aave asset, check popular pairs
+    this.logger.info(`Scanning ${aaveAssets.length} Aave assets for 0x vs direct route opportunities`);
+
+    let candidateCount = 0;
+
     for (const flashAsset of aaveAssets) {
       const flashInfo = TOKEN_BY_ADDRESS[flashAsset.toLowerCase()];
       if (!flashInfo) continue;
 
-      // Get all tokens this flash asset can reach
       const neighbors = this.graph.getNeighbors(flashAsset.toLowerCase());
 
       for (const targetToken of neighbors) {
@@ -49,8 +52,11 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
         if (!targetInfo) continue;
         if (targetToken.toLowerCase() === flashAsset.toLowerCase()) continue;
 
+        candidateCount++;
+        const label = `#${candidateCount} [${flashInfo.symbol}→${targetInfo.symbol}] 0x vs direct`;
+
         try {
-          const result = await this._compareRoutes(flashAsset, targetToken, flashInfo.decimals, targetInfo.decimals);
+          const result = await this._compareRoutes(flashAsset, targetToken, flashInfo.decimals, targetInfo.decimals, label);
           if (result) opportunities.push(result);
         } catch (error) {
           this.logger.debug('0x comparison failed', {
@@ -63,7 +69,10 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
     }
 
     opportunities.sort((a, b) => b.estimatedNetProfitUsd - a.estimatedNetProfitUsd);
-    this.logger.info('0x vs direct route scan complete', { opportunities: opportunities.length });
+    this.logger.info('0x vs direct route scan complete', {
+      candidatesEvaluated: candidateCount,
+      opportunities: opportunities.length,
+    });
     return opportunities;
   }
 
@@ -71,7 +80,8 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
     flashAsset: string,
     targetToken: string,
     flashDecimals: number,
-    targetDecimals: number
+    targetDecimals: number,
+    label: string
   ): Promise<ArbitragePath | null> {
     const flashAmount = 10n ** BigInt(flashDecimals) * 1000n; // $1000 equivalent
 
@@ -91,7 +101,7 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
           amountIn: flashAmount, pool: edge.poolAddress, fee: edge.fee,
         });
         if (out > bestDirectOut) {
-          bestDirectOut = out;
+          bestDirectOut  = out;
           bestDirectEdge = edge;
         }
       } catch { continue; }
@@ -103,17 +113,22 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
     const zeroXPrice = await this.zeroXAdapter!.getPrice(flashAsset, targetToken, flashAmount);
     if (!zeroXPrice || zeroXPrice.buyAmount === 0n) return null;
 
-    // Compare: if 0x gives more target tokens, buy via 0x and sell on DEX
-    // If direct gives more, buy on DEX and sell via 0x
     const zeroXOut = zeroXPrice.buyAmount;
+    const flashInfo  = TOKEN_BY_ADDRESS[flashAsset.toLowerCase()];
+    const targetInfo = TOKEN_BY_ADDRESS[targetToken.toLowerCase()];
+
+    this.logger.debug(`0x vs direct [${flashInfo?.symbol}→${targetInfo?.symbol}]`, {
+      directOut: bestDirectOut.toString().slice(0, 12),
+      zeroXOut:  zeroXOut.toString().slice(0, 12),
+      directDex: bestDirectEdge.dexName,
+    });
 
     if (zeroXOut > bestDirectOut) {
       // 0x is cheaper to buy target → buy via 0x, sell on DEX
-      // But we need the reverse route on DEX
       const reverseEdges = this.graph.getEdgesBetween(targetToken.toLowerCase(), flashAsset.toLowerCase());
       if (reverseEdges.length === 0) return null;
 
-      let bestReverseOut = 0n;
+      let bestReverseOut  = 0n;
       let bestReverseEdge: GraphEdge | null = null;
 
       for (const edge of reverseEdges) {
@@ -125,7 +140,7 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
             amountIn: zeroXOut, pool: edge.poolAddress, fee: edge.fee,
           });
           if (out > bestReverseOut) {
-            bestReverseOut = out;
+            bestReverseOut  = out;
             bestReverseEdge = edge;
           }
         } catch { continue; }
@@ -133,36 +148,34 @@ export class ZeroXVsDirectRoute extends BaseStrategy {
 
       if (!bestReverseEdge || bestReverseOut === 0n) return null;
 
-      const premium = (flashAmount * 5n) / 10000n;
-      if (bestReverseOut <= flashAmount + premium) return null;
-
       const edges: GraphEdge[] = [
         { from: flashAsset.toLowerCase(), to: targetToken.toLowerCase(), poolAddress: '0x', dexId: DexId.ZERO_X, dexName: '0x', fee: 0, weight: 0 },
         bestReverseEdge,
       ];
 
-      const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, bestReverseOut, flashDecimals, edges);
-      if (profit.netProfitUsd < this.config.minProfitThresholdUsd) return null;
+      const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, bestReverseOut, flashDecimals, edges, `${label} [0x-buy]`);
+      if (profit.netProfitUsd <= 0) return null;
 
-      return this.createArbitragePath(edges, flashAsset, flashAmount, bestReverseOut, profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
+      return this.createArbitragePath(edges, flashAsset, flashAmount, bestReverseOut,
+        profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
+
     } else if (bestDirectOut > zeroXOut) {
       // Direct DEX is cheaper → buy on DEX, sell via 0x
       const zeroXSellPrice = await this.zeroXAdapter!.getPrice(targetToken, flashAsset, bestDirectOut);
       if (!zeroXSellPrice || zeroXSellPrice.buyAmount === 0n) return null;
 
       const sellReturn = zeroXSellPrice.buyAmount;
-      const premium = (flashAmount * 5n) / 10000n;
-      if (sellReturn <= flashAmount + premium) return null;
 
       const edges: GraphEdge[] = [
         bestDirectEdge,
         { from: targetToken.toLowerCase(), to: flashAsset.toLowerCase(), poolAddress: '0x', dexId: DexId.ZERO_X, dexName: '0x', fee: 0, weight: 0 },
       ];
 
-      const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, sellReturn, flashDecimals, edges);
-      if (profit.netProfitUsd < this.config.minProfitThresholdUsd) return null;
+      const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, sellReturn, flashDecimals, edges, `${label} [dex-buy]`);
+      if (profit.netProfitUsd <= 0) return null;
 
-      return this.createArbitragePath(edges, flashAsset, flashAmount, sellReturn, profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
+      return this.createArbitragePath(edges, flashAsset, flashAmount, sellReturn,
+        profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
     }
 
     return null;

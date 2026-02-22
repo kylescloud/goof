@@ -196,7 +196,7 @@ export const CHAINLINK_FEEDS: Record<string, ChainlinkFeed> = {
     description: 'ETH / USD',
   },
   'BTC/USD': {
-    address: '0xCCADC697c55bbB68dc5bCdf8d3CBe83CdD4E071E',
+    address: '0x64c911996D3c6aC71f9b455B1E8E7266BcbD848F',
     decimals: 8,
     description: 'BTC / USD',
   },
@@ -215,35 +215,27 @@ export const CHAINLINK_FEEDS: Record<string, ChainlinkFeed> = {
     decimals: 8,
     description: 'USDT / USD',
   },
-  'cbETH/USD': {
-    address: '0xd7818272B9e248357d13057AAb0B417aF31E817d',
-    decimals: 8,
-    description: 'cbETH / USD',
-  },
-  'wstETH/USD': {
-    address: '0x43a5C292A453A3bF3606fa856197f09D7B74251a',
-    decimals: 8,
-    description: 'wstETH / USD',
-  },
-  'rETH/USD': {
-    address: '0xf397bF97280B488cA19ee3093E81C0a77F02e9a5',
-    decimals: 8,
-    description: 'rETH / USD',
+  // NOTE: cbETH/USD, wstETH/USD, rETH/USD direct feeds are not reliably available on Base.
+  // OracleRegistry derives these prices from cbETH/ETH ratio * ETH/USD price.
+  'cbETH/ETH': {
+    address: '0x806b4Ac04501c29769051e42783cF04dCE41440b',
+    decimals: 18,
+    description: 'cbETH / ETH',
   },
 };
 
 // Token address to Chainlink feed mapping
+// Only include feeds that are verified working on Base mainnet.
+// cbETH/wstETH/rETH prices are derived in OracleRegistry from ETH price + ratio.
 export const TOKEN_TO_FEED: Record<string, string> = {
-  [TOKENS.WETH.address.toLowerCase()]: CHAINLINK_FEEDS['ETH/USD'].address,
-  [TOKENS.USDC.address.toLowerCase()]: CHAINLINK_FEEDS['USDC/USD'].address,
-  [TOKENS.USDbC.address.toLowerCase()]: CHAINLINK_FEEDS['USDC/USD'].address, // USDbC uses USDC feed
-  [TOKENS.DAI.address.toLowerCase()]: CHAINLINK_FEEDS['DAI/USD'].address,
-  [TOKENS.USDT.address.toLowerCase()]: CHAINLINK_FEEDS['USDT/USD'].address,
-  [TOKENS.cbETH.address.toLowerCase()]: CHAINLINK_FEEDS['cbETH/USD'].address,
-  [TOKENS.wstETH.address.toLowerCase()]: CHAINLINK_FEEDS['wstETH/USD'].address,
-  [TOKENS.rETH.address.toLowerCase()]: CHAINLINK_FEEDS['rETH/USD'].address,
+  [TOKENS.WETH.address.toLowerCase()]:  CHAINLINK_FEEDS['ETH/USD'].address,
+  [TOKENS.USDC.address.toLowerCase()]:  CHAINLINK_FEEDS['USDC/USD'].address,
+  [TOKENS.USDbC.address.toLowerCase()]: CHAINLINK_FEEDS['USDC/USD'].address,
+  [TOKENS.DAI.address.toLowerCase()]:   CHAINLINK_FEEDS['DAI/USD'].address,
+  [TOKENS.USDT.address.toLowerCase()]:  CHAINLINK_FEEDS['USDT/USD'].address,
   [TOKENS.cbBTC.address.toLowerCase()]: CHAINLINK_FEEDS['BTC/USD'].address,
-  [TOKENS.WBTC.address.toLowerCase()]: CHAINLINK_FEEDS['BTC/USD'].address,
+  [TOKENS.WBTC.address.toLowerCase()]:  CHAINLINK_FEEDS['BTC/USD'].address,
+  // cbETH/wstETH/rETH: derived in OracleRegistry, no direct USD feed registered here
 };
 
 // ─── 0x Protocol Addresses ──────────────────────────────────────────────

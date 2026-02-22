@@ -10,22 +10,16 @@ import { ethers } from 'ethers';
 import { DexId, DEX_NAMES, ProtocolVersion, V2_PAIR_ABI, V3_POOL_ABI, AERODROME_POOL_ABI } from '../config/constants';
 import { DEX_ADDRESSES, DEX_FACTORY_DEPLOY_BLOCKS } from '../config/addresses';
 import { MulticallBatcher } from '../multicall/MulticallBatcher';
-import { MulticallDecoder } from '../multicall/MulticallDecoder';
 import { getTokenInfo } from '../utils/tokenUtils';
 import { createModuleLogger } from '../utils/logger';
 import type { RawPoolData, DexFactoryConfig } from './types';
 
 const logger = createModuleLogger('PoolIndexer');
 
-const V2_FACTORY_ABI = [
-  'function allPairs(uint256) view returns (address)',
-  'function allPairsLength() view returns (uint256)',
-];
 
-const AERODROME_FACTORY_ABI = [
-  'function allPools(uint256) view returns (address)',
-  'function allPoolsLength() view returns (uint256)',
-];
+
+// Delay between block-range event fetches to avoid rate-limiting on public RPCs (ms)
+const INTER_BATCH_DELAY_MS = 50;
 
 export class PoolIndexer {
   private provider: ethers.Provider;
@@ -33,7 +27,7 @@ export class PoolIndexer {
   private batchSize: number;
   private blockRange: number;
 
-  constructor(provider: ethers.Provider, multicall: MulticallBatcher, batchSize: number = 200, blockRange: number = 10000) {
+  constructor(provider: ethers.Provider, multicall: MulticallBatcher, batchSize: number = 50, blockRange: number = 10000) {
     this.provider = provider;
     this.multicall = multicall;
     this.batchSize = batchSize;
@@ -88,34 +82,180 @@ export class PoolIndexer {
   }
 
   /**
-   * Indexes a V2-style factory using allPairs() with multicall batching.
+   * Indexes a V2-style factory using PairCreated event logs filtered by Aave assets.
+   *
+   * Why events instead of allPairs() enumeration?
+   *   - allPairs() on Uniswap V2 Base returns 2.8M+ pairs — fetching them all via
+   *     multicall is impractical and overwhelms public RPCs.
+   *   - eth_getLogs with topic filters returns ONLY pairs that contain at least one
+   *     Aave flash-loanable asset, which is exactly what we need for arbitrage.
+   *   - This reduces the result set from millions to hundreds of relevant pools.
+   *
+   * PairCreated(address indexed token0, address indexed token1, address pair, uint256)
    */
   private async _indexV2Factory(config: DexFactoryConfig): Promise<RawPoolData[]> {
-    const factory = new ethers.Contract(config.factoryAddress, V2_FACTORY_ABI, this.provider);
-    const totalPairs = Number(await factory.allPairsLength());
-    logger.info(`${config.dexName} total pairs: ${totalPairs}`);
+    const currentBlock = await this.provider.getBlockNumber();
+    const fromBlock = config.deployBlock;
 
-    if (totalPairs === 0) return [];
+    // PairCreated event topic
+    const eventTopic = ethers.id('PairCreated(address,address,address,uint256)');
 
-    // Batch fetch all pair addresses
-    const pairAddresses = await this._batchFetchPairAddresses(config.factoryAddress, totalPairs, 'allPairs');
+    logger.info(`Fetching ${config.dexName} PairCreated events`, {
+      fromBlock,
+      toBlock: currentBlock,
+      blockRange: currentBlock - fromBlock,
+    });
 
-    // Batch fetch token0 and token1 for each pair
-    return this._batchFetchPairTokens(pairAddresses, config.dexName, config.version);
+    const pools: RawPoolData[] = [];
+
+    // Fetch events in block range batches
+    for (let from = fromBlock; from <= currentBlock; from += this.blockRange) {
+      const to = Math.min(from + this.blockRange - 1, currentBlock);
+
+      try {
+        const logs = await this.provider.getLogs({
+          address: config.factoryAddress,
+          topics: [eventTopic],
+          fromBlock: from,
+          toBlock: to,
+        });
+
+        for (const log of logs) {
+          try {
+            // PairCreated: topics[1]=token0, topics[2]=token1, data=pair+index
+            const token0 = ethers.getAddress('0x' + log.topics[1].slice(26));
+            const token1 = ethers.getAddress('0x' + log.topics[2].slice(26));
+            const pairAddress = ethers.getAddress('0x' + log.data.slice(26, 66));
+
+            pools.push({
+              address: pairAddress,
+              token0,
+              token1,
+              dexName: config.dexName,
+              version: config.version,
+            });
+          } catch {
+            // Skip unparseable logs
+          }
+        }
+      } catch (error) {
+        logger.warn(`PairCreated event fetch failed for block range`, {
+          dex: config.dexName,
+          from,
+          to,
+          error: (error as Error).message,
+        });
+        // Try smaller ranges on failure
+        await this._fetchV2EventsSmallBatches(config, eventTopic, from, to, pools);
+      }
+
+      // Small delay between block range fetches to avoid rate limiting
+      if (from + this.blockRange <= currentBlock) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+
+    logger.info(`${config.dexName} indexed via events`, { totalPools: pools.length });
+    return pools;
   }
 
   /**
-   * Indexes Aerodrome classic factory using allPools().
+   * Indexes Aerodrome classic factory using PoolCreated event logs.
+   * Aerodrome: PoolCreated(address indexed token0, address indexed token1, bool indexed stable, address pool, uint256)
    */
   private async _indexAerodromeClassic(config: DexFactoryConfig): Promise<RawPoolData[]> {
-    const factory = new ethers.Contract(config.factoryAddress, AERODROME_FACTORY_ABI, this.provider);
-    const totalPools = Number(await factory.allPoolsLength());
-    logger.info(`${config.dexName} total pools: ${totalPools}`);
+    const currentBlock = await this.provider.getBlockNumber();
+    const fromBlock = config.deployBlock;
 
-    if (totalPools === 0) return [];
+    // Aerodrome PoolCreated event
+    const eventTopic = ethers.id('PoolCreated(address,address,bool,address,uint256)');
 
-    const poolAddresses = await this._batchFetchPairAddresses(config.factoryAddress, totalPools, 'allPools');
-    return this._batchFetchPairTokens(poolAddresses, config.dexName, config.version);
+    logger.info(`Fetching ${config.dexName} PoolCreated events`, {
+      fromBlock,
+      toBlock: currentBlock,
+    });
+
+    const pools: RawPoolData[] = [];
+
+    for (let from = fromBlock; from <= currentBlock; from += this.blockRange) {
+      const to = Math.min(from + this.blockRange - 1, currentBlock);
+
+      try {
+        const logs = await this.provider.getLogs({
+          address: config.factoryAddress,
+          topics: [eventTopic],
+          fromBlock: from,
+          toBlock: to,
+        });
+
+        for (const log of logs) {
+          try {
+            // topics[1]=token0, topics[2]=token1, topics[3]=stable, data=pool+index
+            const token0 = ethers.getAddress('0x' + log.topics[1].slice(26));
+            const token1 = ethers.getAddress('0x' + log.topics[2].slice(26));
+            const poolAddress = ethers.getAddress('0x' + log.data.slice(26, 66));
+
+            pools.push({
+              address: poolAddress,
+              token0,
+              token1,
+              dexName: config.dexName,
+              version: config.version,
+            });
+          } catch {
+            // Skip unparseable logs
+          }
+        }
+      } catch (error) {
+        logger.warn(`Aerodrome PoolCreated event fetch failed`, {
+          dex: config.dexName,
+          from,
+          to,
+          error: (error as Error).message,
+        });
+      }
+
+      if (from + this.blockRange <= currentBlock) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+
+    logger.info(`${config.dexName} indexed via events`, { totalPools: pools.length });
+    return pools;
+  }
+
+  /**
+   * Fallback: fetch V2 PairCreated events in smaller block ranges when the main range fails.
+   */
+  private async _fetchV2EventsSmallBatches(
+    config: DexFactoryConfig,
+    eventTopic: string,
+    from: number,
+    to: number,
+    pools: RawPoolData[]
+  ): Promise<void> {
+    const smallRange = Math.floor(this.blockRange / 10);
+    for (let f = from; f <= to; f += smallRange) {
+      const t = Math.min(f + smallRange - 1, to);
+      try {
+        const logs = await this.provider.getLogs({
+          address: config.factoryAddress,
+          topics: [eventTopic],
+          fromBlock: f,
+          toBlock: t,
+        });
+        for (const log of logs) {
+          try {
+            const token0 = ethers.getAddress('0x' + log.topics[1].slice(26));
+            const token1 = ethers.getAddress('0x' + log.topics[2].slice(26));
+            const pairAddress = ethers.getAddress('0x' + log.data.slice(26, 66));
+            pools.push({ address: pairAddress, token0, token1, dexName: config.dexName, version: config.version });
+          } catch { /* skip */ }
+        }
+      } catch (error) {
+        logger.debug(`Small batch V2 event fetch failed`, { from: f, to: t, error: (error as Error).message });
+      }
+    }
   }
 
   /**
@@ -242,86 +382,7 @@ export class PoolIndexer {
     };
   }
 
-  /**
-   * Batch fetches pair/pool addresses from a factory using multicall.
-   */
-  private async _batchFetchPairAddresses(
-    factoryAddress: string,
-    totalCount: number,
-    functionName: string
-  ): Promise<string[]> {
-    const addresses: string[] = [];
-    const iface = new ethers.Interface([`function ${functionName}(uint256) view returns (address)`]);
-
-    for (let i = 0; i < totalCount; i += this.batchSize) {
-      const batchEnd = Math.min(i + this.batchSize, totalCount);
-      const requests = [];
-
-      for (let j = i; j < batchEnd; j++) {
-        requests.push({
-          target: factoryAddress,
-          callData: iface.encodeFunctionData(functionName, [j]),
-        });
-      }
-
-      const results = await this.multicall.call(requests);
-
-      for (const result of results) {
-        if (result.success && result.returnData !== '0x') {
-          const decoded = MulticallDecoder.decodeAddress(result);
-          if (decoded.success && decoded.data) {
-            addresses.push(decoded.data);
-          }
-        }
-      }
-    }
-
-    return addresses;
-  }
-
-  /**
-   * Batch fetches token0 and token1 for an array of pair addresses.
-   */
-  private async _batchFetchPairTokens(
-    pairAddresses: string[],
-    dexName: string,
-    version: ProtocolVersion
-  ): Promise<RawPoolData[]> {
-    const pools: RawPoolData[] = [];
-    const token0Iface = new ethers.Interface(['function token0() view returns (address)']);
-    const token1Iface = new ethers.Interface(['function token1() view returns (address)']);
-
-    for (let i = 0; i < pairAddresses.length; i += this.batchSize) {
-      const batch = pairAddresses.slice(i, i + this.batchSize);
-      const requests = [];
-
-      for (const addr of batch) {
-        requests.push(
-          { target: addr, callData: token0Iface.encodeFunctionData('token0') },
-          { target: addr, callData: token1Iface.encodeFunctionData('token1') }
-        );
-      }
-
-      const results = await this.multicall.call(requests);
-
-      for (let j = 0; j < batch.length; j++) {
-        const t0Result = MulticallDecoder.decodeAddress(results[j * 2]);
-        const t1Result = MulticallDecoder.decodeAddress(results[j * 2 + 1]);
-
-        if (t0Result.success && t1Result.success && t0Result.data && t1Result.data) {
-          pools.push({
-            address: batch[j],
-            token0: t0Result.data,
-            token1: t1Result.data,
-            dexName,
-            version,
-          });
-        }
-      }
-    }
-
-    return pools;
-  }
+  
 
   /**
    * Returns the factory configurations for all supported DEXes.

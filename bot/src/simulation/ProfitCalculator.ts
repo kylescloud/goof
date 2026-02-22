@@ -60,12 +60,20 @@ export class ProfitCalculator {
     const grossProfitToken = returnAmount > totalRepayment ? returnAmount - totalRepayment : 0n;
 
     // Get token price in USD
+    // OracleRegistry always returns a value (stablecoin=$1, ETH=$2000 fallback)
     let tokenPriceUsd = 1.0;
     try {
       const priceData = await this.oracleRegistry.getTokenPriceUSD(flashAsset);
-      tokenPriceUsd = priceData.priceUsd;
+      if (priceData.priceUsd > 0 && priceData.priceUsd < 1_000_000) {
+        tokenPriceUsd = priceData.priceUsd;
+      } else {
+        logger.warn('Token price out of reasonable range, using $1 fallback', {
+          flashAsset,
+          priceUsd: priceData.priceUsd,
+        });
+      }
     } catch {
-      logger.warn('Failed to get token price, using default', { flashAsset });
+      logger.warn('Failed to get token price, using $1 fallback', { flashAsset });
     }
 
     const grossProfitUsd = fromBigInt(grossProfitToken, decimals) * tokenPriceUsd;
@@ -124,7 +132,9 @@ export class ProfitCalculator {
     let tokenPriceUsd = 1.0;
     try {
       const priceData = await this.oracleRegistry.getTokenPriceUSD(flashAsset);
-      tokenPriceUsd = priceData.priceUsd;
+      if (priceData.priceUsd > 0 && priceData.priceUsd < 1_000_000) {
+        tokenPriceUsd = priceData.priceUsd;
+      }
     } catch { /* use default */ }
 
     const gasCostInTokens = tokenPriceUsd > 0

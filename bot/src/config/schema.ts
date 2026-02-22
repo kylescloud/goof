@@ -21,7 +21,9 @@ export const configSchema = z.object({
   arbitrageExecutorAddress: addressSchema,
 
   // --- Profit & Gas ---
-  minProfitThresholdUsd: z.number().min(0).default(10),
+  // Default 0 = show ALL opportunities (profitable and unprofitable) for analysis
+  // Set to e.g. 1.0 in production to only execute trades with $1+ net profit
+  minProfitThresholdUsd: z.number().min(0).default(0),
   maxGasPriceGwei: z.number().min(0).default(50),
   priorityFeeGwei: z.number().min(0).default(0.1),
   minEthReserveWei: z.bigint().default(10000000000000000n),
@@ -41,13 +43,13 @@ export const configSchema = z.object({
 
   // --- Discovery ---
   discoveryCron: z.string().default('*/5 * * * *'),
-  discoveryBatchSize: z.number().int().min(1).default(200),
+  discoveryBatchSize: z.number().int().min(1).default(50),
   discoveryBlockRange: z.number().int().min(100).default(10000),
 
   // --- Path Generation ---
   beamWidth: z.number().int().min(1).default(20),
   maxHops: z.number().int().min(2).max(6).default(4),
-  minPoolLiquidityUsd: z.number().min(0).default(10000),
+  minPoolLiquidityUsd: z.number().min(0).default(1000),
 
   // --- Simulation ---
   simulationWorkers: z.number().int().min(1).max(16).default(4),
@@ -65,9 +67,9 @@ export const configSchema = z.object({
   logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 
   // --- Strategy-Specific ---
-  v2v3DivergenceThresholdBps: z.number().int().min(1).default(30),
+  v2v3DivergenceThresholdBps: z.number().int().min(1).default(10),  // lowered from 30 to catch more
   wethCircuitBreakerPct: z.number().min(0.1).default(2),
-  stableDepegThresholdBps: z.number().int().min(1).default(10),
+  stableDepegThresholdBps: z.number().int().min(1).default(5),      // lowered from 10 to catch more
 });
 
 export type Config = z.infer<typeof configSchema>;

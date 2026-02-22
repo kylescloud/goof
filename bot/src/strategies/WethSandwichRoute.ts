@@ -4,13 +4,14 @@
  *              intermediate token. Flash borrows a non-WETH Aave asset, swaps to WETH on one DEX,
  *              then swaps WETH back to the flash asset on another DEX, profiting from price
  *              differences in the WETH intermediate legs.
+ *
+ *              VERBOSE: Logs every candidate path scanned with full profit/loss details.
  */
 
 import { BaseStrategy } from './BaseStrategy';
 import { TOKENS, TOKEN_BY_ADDRESS } from '../config/addresses';
 import { getAmountOut as v2GetAmountOut } from '../dex/math/V2Math';
 import type { ArbitragePath, GraphEdge } from '../graph/types';
-import type { PoolEntry } from '../discovery/types';
 
 export class WethSandwichRoute extends BaseStrategy {
   readonly name = 'WETH Sandwich Route';
@@ -19,7 +20,11 @@ export class WethSandwichRoute extends BaseStrategy {
   async findOpportunities(): Promise<ArbitragePath[]> {
     const opportunities: ArbitragePath[] = [];
     const wethAddress = TOKENS.WETH.address.toLowerCase();
-    const aaveAssets = this.registry.meta.aaveAssets;
+    const aaveAssets  = this.registry.meta.aaveAssets;
+
+    this.logger.info(`Scanning ${aaveAssets.length} Aave assets for WETH sandwich routes`);
+
+    let candidateCount = 0;
 
     for (const flashAsset of aaveAssets) {
       const flashLower = flashAsset.toLowerCase();
@@ -32,15 +37,18 @@ export class WethSandwichRoute extends BaseStrategy {
       const leg1Edges = this.graph.getEdgesBetween(flashLower, wethAddress);
       const leg2Edges = this.graph.getEdgesBetween(wethAddress, flashLower);
 
+      this.logger.debug(`WETH sandwich [${flashInfo.symbol}]: leg1=${leg1Edges.length} edges, leg2=${leg2Edges.length} edges`);
+
       if (leg1Edges.length === 0 || leg2Edges.length === 0) continue;
 
       // Try all combinations of leg1 and leg2 pools
       for (const buyEdge of leg1Edges) {
         for (const sellEdge of leg2Edges) {
-          // Must be different pools
           if (buyEdge.poolAddress === sellEdge.poolAddress) continue;
 
-          const result = await this._evaluateSandwich(flashAsset, flashInfo.decimals, buyEdge, sellEdge);
+          candidateCount++;
+          const label = `#${candidateCount} [${flashInfo.symbol}→WETH→${flashInfo.symbol}] ${buyEdge.dexName}→${sellEdge.dexName}`;
+          const result = await this._evaluateSandwich(flashAsset, flashInfo.decimals, buyEdge, sellEdge, label);
           if (result) opportunities.push(result);
         }
       }
@@ -56,26 +64,28 @@ export class WethSandwichRoute extends BaseStrategy {
 
         if (leg1.length === 0 || leg2.length === 0 || leg3.length === 0) continue;
 
-        // Pick best edge for each leg
         const bestLeg1 = this._pickBestEdge(leg1);
         const bestLeg2 = this._pickBestEdge(leg2);
         const bestLeg3 = this._pickBestEdge(leg3);
 
         if (!bestLeg1 || !bestLeg2 || !bestLeg3) continue;
 
-        // Ensure no duplicate pools
         const pools = new Set([bestLeg1.poolAddress, bestLeg2.poolAddress, bestLeg3.poolAddress]);
         if (pools.size < 3) continue;
 
-        const result = await this._evaluateThreeHop(
-          flashAsset, flashInfo.decimals, bestLeg1, bestLeg2, bestLeg3
-        );
+        const midInfo = TOKEN_BY_ADDRESS[midToken] ?? { symbol: midToken.slice(0,8) };
+        candidateCount++;
+        const label3 = `#${candidateCount} [${flashInfo.symbol}→${midInfo.symbol}→WETH→${flashInfo.symbol}] 3-hop`;
+        const result = await this._evaluateThreeHop(flashAsset, flashInfo.decimals, bestLeg1, bestLeg2, bestLeg3, label3);
         if (result) opportunities.push(result);
       }
     }
 
     opportunities.sort((a, b) => b.estimatedNetProfitUsd - a.estimatedNetProfitUsd);
-    this.logger.info('WETH sandwich scan complete', { opportunities: opportunities.length });
+    this.logger.info('WETH sandwich scan complete', {
+      candidatesEvaluated: candidateCount,
+      opportunities: opportunities.length,
+    });
     return opportunities;
   }
 
@@ -83,27 +93,24 @@ export class WethSandwichRoute extends BaseStrategy {
     flashAsset: string,
     flashDecimals: number,
     buyEdge: GraphEdge,
-    sellEdge: GraphEdge
+    sellEdge: GraphEdge,
+    label: string
   ): Promise<ArbitragePath | null> {
     const flashAmount = this._estimateFlashAmount(buyEdge, flashAsset, flashDecimals);
     if (flashAmount === 0n) return null;
 
-    // Step 1: flashAsset -> WETH
-    const wethAmount = this._simulateEdge(buyEdge, flashAmount);
+    const wethAmount   = this._simulateEdge(buyEdge,  flashAmount);
     if (wethAmount === 0n) return null;
 
-    // Step 2: WETH -> flashAsset
     const returnAmount = this._simulateEdge(sellEdge, wethAmount);
     if (returnAmount === 0n) return null;
 
-    const premium = (flashAmount * 5n) / 10000n;
-    if (returnAmount <= flashAmount + premium) return null;
+    const edges  = [buyEdge, sellEdge];
+    const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, returnAmount, flashDecimals, edges, label);
+    if (profit.netProfitUsd <= 0) return null;
 
-    const edges = [buyEdge, sellEdge];
-    const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, returnAmount, flashDecimals, edges);
-    if (profit.netProfitUsd < this.config.minProfitThresholdUsd) return null;
-
-    return this.createArbitragePath(edges, flashAsset, flashAmount, returnAmount, profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
+    return this.createArbitragePath(edges, flashAsset, flashAmount, returnAmount,
+      profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
   }
 
   private async _evaluateThreeHop(
@@ -111,35 +118,34 @@ export class WethSandwichRoute extends BaseStrategy {
     flashDecimals: number,
     leg1: GraphEdge,
     leg2: GraphEdge,
-    leg3: GraphEdge
+    leg3: GraphEdge,
+    label: string
   ): Promise<ArbitragePath | null> {
     const flashAmount = this._estimateFlashAmount(leg1, flashAsset, flashDecimals);
     if (flashAmount === 0n) return null;
 
-    const midAmount = this._simulateEdge(leg1, flashAmount);
+    const midAmount    = this._simulateEdge(leg1, flashAmount);
     if (midAmount === 0n) return null;
 
-    const wethAmount = this._simulateEdge(leg2, midAmount);
+    const wethAmount   = this._simulateEdge(leg2, midAmount);
     if (wethAmount === 0n) return null;
 
     const returnAmount = this._simulateEdge(leg3, wethAmount);
     if (returnAmount === 0n) return null;
 
-    const premium = (flashAmount * 5n) / 10000n;
-    if (returnAmount <= flashAmount + premium) return null;
+    const edges  = [leg1, leg2, leg3];
+    const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, returnAmount, flashDecimals, edges, label);
+    if (profit.netProfitUsd <= 0) return null;
 
-    const edges = [leg1, leg2, leg3];
-    const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, returnAmount, flashDecimals, edges);
-    if (profit.netProfitUsd < this.config.minProfitThresholdUsd) return null;
-
-    return this.createArbitragePath(edges, flashAsset, flashAmount, returnAmount, profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
+    return this.createArbitragePath(edges, flashAsset, flashAmount, returnAmount,
+      profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
   }
 
   private _simulateEdge(edge: GraphEdge, amountIn: bigint): bigint {
     try {
       if (edge.reserve0 && edge.reserve1) {
         const isToken0In = edge.from < edge.to;
-        const reserveIn = isToken0In ? edge.reserve0 : edge.reserve1;
+        const reserveIn  = isToken0In ? edge.reserve0 : edge.reserve1;
         const reserveOut = isToken0In ? edge.reserve1 : edge.reserve0;
         const fee = edge.fee <= 100 ? edge.fee : 30;
         return v2GetAmountOut(amountIn, reserveIn, reserveOut, fee);
@@ -160,7 +166,7 @@ export class WethSandwichRoute extends BaseStrategy {
   private _estimateFlashAmount(edge: GraphEdge, flashAsset: string, decimals: number): bigint {
     if (edge.reserve0 && edge.reserve1) {
       const isToken0 = edge.from === flashAsset.toLowerCase();
-      const reserve = isToken0 ? edge.reserve0 : edge.reserve1;
+      const reserve  = isToken0 ? edge.reserve0 : edge.reserve1;
       return reserve > 0n ? reserve / 50n : 0n;
     }
     return 10n ** BigInt(decimals) * 1000n;

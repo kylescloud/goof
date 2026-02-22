@@ -143,7 +143,7 @@ export const DISCOVERY_DEFAULTS = {
 } as const;
 
 // ─── Multicall Constants ────────────────────────────────────────────────
-export const MULTICALL_BATCH_SIZE = 200;
+export const MULTICALL_BATCH_SIZE = 50; // Conservative default — public RPCs reject large batches
 export const MULTICALL_GAS_LIMIT = 30_000_000n;
 
 // ─── Event Signatures ───────────────────────────────────────────────────

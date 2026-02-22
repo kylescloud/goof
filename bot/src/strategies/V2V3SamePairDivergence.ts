@@ -3,12 +3,14 @@
  * @description Strategy 3: V2/V3 Same-Pair Price Divergence. Detects when the same token pair
  *              has a price discrepancy between a V2 pool and a V3 pool. Buys on the cheaper pool,
  *              sells on the more expensive pool.
+ *
+ *              VERBOSE: Logs every candidate path scanned with full profit/loss details.
  */
 
 import { BaseStrategy } from './BaseStrategy';
-import { ProtocolVersion, BPS_BASE } from '../config/constants';
+import { ProtocolVersion } from '../config/constants';
 import { pairKey } from '../utils/addressUtils';
-import { getAmountOut as v2GetAmountOut, getSpotPrice as v2SpotPrice } from '../dex/math/V2Math';
+import { getAmountOut as v2GetAmountOut } from '../dex/math/V2Math';
 import { TOKEN_BY_ADDRESS } from '../config/addresses';
 import type { ArbitragePath, GraphEdge } from '../graph/types';
 import type { PoolEntry } from '../discovery/types';
@@ -36,28 +38,37 @@ export class V2V3SamePairDivergence extends BaseStrategy {
       }
     }
 
+    const mixedPairs = [...pairPools.values()].filter(g => g.v2.length > 0 && g.v3.length > 0);
+    this.logger.info(`Scanning ${mixedPairs.length} pairs with both V2+V3 pools for divergence`);
+
+    let candidateCount = 0;
+
     // For each pair with both V2 and V3 pools, check for divergence
     for (const [, group] of pairPools) {
       if (group.v2.length === 0 || group.v3.length === 0) continue;
 
       for (const v2Pool of group.v2) {
         for (const v3Pool of group.v3) {
-          const result = await this._checkDivergence(v2Pool, v3Pool);
+          candidateCount++;
+          const result = await this._checkDivergence(v2Pool, v3Pool, candidateCount);
           if (result) opportunities.push(result);
 
-          // Also check reverse direction
-          const reverseResult = await this._checkDivergence(v3Pool, v2Pool);
+          candidateCount++;
+          const reverseResult = await this._checkDivergence(v3Pool, v2Pool, candidateCount);
           if (reverseResult) opportunities.push(reverseResult);
         }
       }
     }
 
     opportunities.sort((a, b) => b.estimatedNetProfitUsd - a.estimatedNetProfitUsd);
-    this.logger.info('V2/V3 divergence scan complete', { opportunities: opportunities.length });
+    this.logger.info('V2/V3 divergence scan complete', {
+      candidatesEvaluated: candidateCount,
+      opportunities: opportunities.length,
+    });
     return opportunities;
   }
 
-  private async _checkDivergence(buyPool: PoolEntry, sellPool: PoolEntry): Promise<ArbitragePath | null> {
+  private async _checkDivergence(buyPool: PoolEntry, sellPool: PoolEntry, idx: number): Promise<ArbitragePath | null> {
     const flashAsset = buyPool.aaveAsset;
     if (!flashAsset) return null;
 
@@ -68,14 +79,17 @@ export class V2V3SamePairDivergence extends BaseStrategy {
     const tokenA = isBuyToken0 ? buyPool.token1.address : buyPool.token0.address;
     const tokenB = flashAsset;
 
-    // Get prices from both pools
-    const buyPrice = this._getPrice(buyPool, tokenB, tokenA);
-    const sellPrice = this._getPrice(sellPool, tokenA, tokenB);
-
-    if (buyPrice === 0n || sellPrice === 0n) return null;
-
-    // Check divergence threshold
+    // Calculate divergence
     const divergenceBps = this._calculateDivergenceBps(buyPool, sellPool, tokenB, tokenA);
+
+    this.logger.debug(`V2/V3 divergence check #${idx}`, {
+      buyPool:  `${buyPool.dex}(${buyPool.address.slice(0,10)})`,
+      sellPool: `${sellPool.dex}(${sellPool.address.slice(0,10)})`,
+      pair: `${buyPool.token0.symbol}/${buyPool.token1.symbol}`,
+      divergenceBps,
+      threshold: this.config.v2v3DivergenceThresholdBps,
+    });
+
     if (divergenceBps < this.config.v2v3DivergenceThresholdBps) return null;
 
     // Estimate trade size
@@ -90,20 +104,18 @@ export class V2V3SamePairDivergence extends BaseStrategy {
     const sellOutput = this._simulateSwap(sellPool, tokenA, tokenB, buyOutput);
     if (sellOutput === 0n) return null;
 
-    // Check profitability
-    const premium = (flashAmount * 5n) / 10000n;
-    if (sellOutput <= flashAmount + premium) return null;
-
     const edges: GraphEdge[] = [
-      this._poolToEdge(buyPool, tokenB, tokenA),
+      this._poolToEdge(buyPool,  tokenB, tokenA),
       this._poolToEdge(sellPool, tokenA, tokenB),
     ];
 
+    const label = `#${idx} [${tokenInfo.symbol}] ${buyPool.dex}→${sellPool.dex} divergence=${divergenceBps}bps`;
+
     const profit = await this.estimateNetProfitUsd(
-      flashAsset, flashAmount, sellOutput, tokenInfo.decimals, edges
+      flashAsset, flashAmount, sellOutput, tokenInfo.decimals, edges, label
     );
 
-    if (profit.netProfitUsd < this.config.minProfitThresholdUsd) return null;
+    if (profit.netProfitUsd <= 0) return null;
 
     return this.createArbitragePath(
       edges, flashAsset, flashAmount, sellOutput,
@@ -118,14 +130,9 @@ export class V2V3SamePairDivergence extends BaseStrategy {
     const out2 = this._simulateSwap(pool2, tokenIn, tokenOut, testAmount);
     if (out1 === 0n || out2 === 0n) return 0;
     const diff = out1 > out2 ? out1 - out2 : out2 - out1;
-    const avg = (out1 + out2) / 2n;
+    const avg  = (out1 + out2) / 2n;
     if (avg === 0n) return 0;
     return Number((diff * 10000n) / avg);
-  }
-
-  private _getPrice(pool: PoolEntry, tokenIn: string, tokenOut: string): bigint {
-    const testAmount = 10n ** BigInt(TOKEN_BY_ADDRESS[tokenIn.toLowerCase()]?.decimals ?? 6) * 100n;
-    return this._simulateSwap(pool, tokenIn, tokenOut, testAmount);
   }
 
   private _simulateSwap(pool: PoolEntry, tokenIn: string, tokenOut: string, amountIn: bigint): bigint {
@@ -155,7 +162,7 @@ export class V2V3SamePairDivergence extends BaseStrategy {
   private _estimateTradeSize(pool: PoolEntry, flashAsset: string, decimals: number): bigint {
     if (pool.reserve0 && pool.reserve1) {
       const isToken0 = pool.token0.address.toLowerCase() === flashAsset.toLowerCase();
-      const reserve = BigInt(isToken0 ? pool.reserve0 : pool.reserve1);
+      const reserve  = BigInt(isToken0 ? pool.reserve0 : pool.reserve1);
       return reserve > 0n ? reserve / 50n : 0n;
     }
     return 10n ** BigInt(decimals) * 1000n;
@@ -165,10 +172,10 @@ export class V2V3SamePairDivergence extends BaseStrategy {
     return {
       from: from.toLowerCase(), to: to.toLowerCase(), poolAddress: pool.address,
       dexId: this._getDexId(pool.dex), dexName: pool.dex, fee: pool.fee ?? 30, weight: 0,
-      reserve0: pool.reserve0 ? BigInt(pool.reserve0) : undefined,
-      reserve1: pool.reserve1 ? BigInt(pool.reserve1) : undefined,
+      reserve0:     pool.reserve0     ? BigInt(pool.reserve0)     : undefined,
+      reserve1:     pool.reserve1     ? BigInt(pool.reserve1)     : undefined,
       sqrtPriceX96: pool.sqrtPriceX96 ? BigInt(pool.sqrtPriceX96) : undefined,
-      liquidity: pool.liquidity ? BigInt(pool.liquidity) : undefined,
+      liquidity:    pool.liquidity    ? BigInt(pool.liquidity)    : undefined,
     };
   }
 

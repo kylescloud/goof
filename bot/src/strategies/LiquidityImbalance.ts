@@ -3,6 +3,8 @@
  * @description Strategy 5: Liquidity Imbalance. Detects when a large pool and a small pool for
  *              the same pair have divergent prices due to reserve ratio differences. Buys on the
  *              pool with the better rate, sells on the other.
+ *
+ *              VERBOSE: Logs every candidate path scanned with full profit/loss details.
  */
 
 import { BaseStrategy } from './BaseStrategy';
@@ -28,6 +30,11 @@ export class LiquidityImbalance extends BaseStrategy {
       pairPools.get(key)!.push(pool);
     }
 
+    const multiPairs = [...pairPools.values()].filter(g => g.length >= 2);
+    this.logger.info(`Scanning ${multiPairs.length} pairs with ≥2 pools for liquidity imbalance`);
+
+    let candidateCount = 0;
+
     for (const [, poolGroup] of pairPools) {
       if (poolGroup.length < 2) continue;
 
@@ -40,29 +47,43 @@ export class LiquidityImbalance extends BaseStrategy {
           const largePool = sortedPools[i];
           const smallPool = sortedPools[j];
 
-          // Check liquidity ratio - we want significant imbalance
           const largeReserve = this._getTotalReserve(largePool);
           const smallReserve = this._getTotalReserve(smallPool);
 
-          if (largeReserve === 0n || smallReserve === 0n) continue;
+          if (largeReserve === 0n || smallReserve === 0n) {
+            this.logger.debug(`Skip: zero reserve on ${largePool.dex} or ${smallPool.dex}`);
+            continue;
+          }
+
+          const ratio = largeReserve > 0n ? Number(largeReserve * 100n / (smallReserve || 1n)) / 100 : 0;
+          this.logger.debug(`Liquidity ratio ${largePool.dex}/${smallPool.dex}: ${ratio.toFixed(1)}x`, {
+            pair: `${largePool.token0.symbol}/${largePool.token1.symbol}`,
+            largeReserve: largeReserve.toString().slice(0, 12),
+            smallReserve: smallReserve.toString().slice(0, 12),
+          });
+
           if (largeReserve < smallReserve * 5n) continue; // Need at least 5x difference
 
-          // Check both directions
-          const result1 = await this._checkImbalance(largePool, smallPool);
+          candidateCount++;
+          const result1 = await this._checkImbalance(largePool, smallPool, candidateCount);
           if (result1) opportunities.push(result1);
 
-          const result2 = await this._checkImbalance(smallPool, largePool);
+          candidateCount++;
+          const result2 = await this._checkImbalance(smallPool, largePool, candidateCount);
           if (result2) opportunities.push(result2);
         }
       }
     }
 
     opportunities.sort((a, b) => b.estimatedNetProfitUsd - a.estimatedNetProfitUsd);
-    this.logger.info('Liquidity imbalance scan complete', { opportunities: opportunities.length });
+    this.logger.info('Liquidity imbalance scan complete', {
+      candidatesEvaluated: candidateCount,
+      opportunities: opportunities.length,
+    });
     return opportunities;
   }
 
-  private async _checkImbalance(buyPool: PoolEntry, sellPool: PoolEntry): Promise<ArbitragePath | null> {
+  private async _checkImbalance(buyPool: PoolEntry, sellPool: PoolEntry, idx: number): Promise<ArbitragePath | null> {
     const flashAsset = buyPool.aaveAsset;
     if (!flashAsset) return null;
 
@@ -76,24 +97,23 @@ export class LiquidityImbalance extends BaseStrategy {
     const flashAmount = this._estimateTradeSize(buyPool, flashAsset, tokenInfo.decimals);
     if (flashAmount === 0n) return null;
 
-    const buyOutput = this._simulateSwap(buyPool, tokenB, tokenA, flashAmount);
+    const buyOutput  = this._simulateSwap(buyPool,  tokenB, tokenA, flashAmount);
     if (buyOutput === 0n) return null;
 
     const sellOutput = this._simulateSwap(sellPool, tokenA, tokenB, buyOutput);
     if (sellOutput === 0n) return null;
 
-    const premium = (flashAmount * 5n) / 10000n;
-    if (sellOutput <= flashAmount + premium) return null;
-
     const edges: GraphEdge[] = [
-      this._poolToEdge(buyPool, tokenB, tokenA),
+      this._poolToEdge(buyPool,  tokenB, tokenA),
       this._poolToEdge(sellPool, tokenA, tokenB),
     ];
 
-    const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, sellOutput, tokenInfo.decimals, edges);
-    if (profit.netProfitUsd < this.config.minProfitThresholdUsd) return null;
+    const label = `#${idx} [${tokenInfo.symbol}] ${buyPool.dex}→${sellPool.dex} imbalance`;
+    const profit = await this.estimateNetProfitUsd(flashAsset, flashAmount, sellOutput, tokenInfo.decimals, edges, label);
+    if (profit.netProfitUsd <= 0) return null;
 
-    return this.createArbitragePath(edges, flashAsset, flashAmount, sellOutput, profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
+    return this.createArbitragePath(edges, flashAsset, flashAmount, sellOutput,
+      profit.grossProfitUsd, profit.gasCostUsd, profit.netProfitUsd, this.id);
   }
 
   private _sortByLiquidity(pools: PoolEntry[]): PoolEntry[] {
@@ -105,9 +125,7 @@ export class LiquidityImbalance extends BaseStrategy {
   }
 
   private _getTotalReserve(pool: PoolEntry): bigint {
-    if (pool.reserve0 && pool.reserve1) {
-      return BigInt(pool.reserve0) + BigInt(pool.reserve1);
-    }
+    if (pool.reserve0 && pool.reserve1) return BigInt(pool.reserve0) + BigInt(pool.reserve1);
     if (pool.liquidity) return BigInt(pool.liquidity);
     return 0n;
   }
@@ -138,7 +156,7 @@ export class LiquidityImbalance extends BaseStrategy {
   private _estimateTradeSize(pool: PoolEntry, flashAsset: string, decimals: number): bigint {
     if (pool.reserve0 && pool.reserve1) {
       const isToken0 = pool.token0.address.toLowerCase() === flashAsset.toLowerCase();
-      const reserve = BigInt(isToken0 ? pool.reserve0 : pool.reserve1);
+      const reserve  = BigInt(isToken0 ? pool.reserve0 : pool.reserve1);
       return reserve > 0n ? reserve / 50n : 0n;
     }
     return 10n ** BigInt(decimals) * 1000n;
@@ -148,15 +166,19 @@ export class LiquidityImbalance extends BaseStrategy {
     return {
       from: from.toLowerCase(), to: to.toLowerCase(), poolAddress: pool.address,
       dexId: this._getDexId(pool.dex), dexName: pool.dex, fee: pool.fee ?? 30, weight: 0,
-      reserve0: pool.reserve0 ? BigInt(pool.reserve0) : undefined,
-      reserve1: pool.reserve1 ? BigInt(pool.reserve1) : undefined,
+      reserve0:     pool.reserve0     ? BigInt(pool.reserve0)     : undefined,
+      reserve1:     pool.reserve1     ? BigInt(pool.reserve1)     : undefined,
       sqrtPriceX96: pool.sqrtPriceX96 ? BigInt(pool.sqrtPriceX96) : undefined,
-      liquidity: pool.liquidity ? BigInt(pool.liquidity) : undefined,
+      liquidity:    pool.liquidity    ? BigInt(pool.liquidity)    : undefined,
     };
   }
 
   private _getDexId(n: string): number {
-    const m: Record<string, number> = { 'Uniswap V2': 0, 'Uniswap V3': 1, 'SushiSwap V2': 2, 'SushiSwap V3': 3, 'Aerodrome': 4, 'Aerodrome Slipstream': 5, 'BaseSwap V2': 6, 'BaseSwap V3': 7, 'SwapBased': 8, 'PancakeSwap V3': 9 };
+    const m: Record<string, number> = {
+      'Uniswap V2': 0, 'Uniswap V3': 1, 'SushiSwap V2': 2, 'SushiSwap V3': 3,
+      'Aerodrome': 4, 'Aerodrome Slipstream': 5, 'BaseSwap V2': 6, 'BaseSwap V3': 7,
+      'SwapBased': 8, 'PancakeSwap V3': 9,
+    };
     return m[n] ?? 0;
   }
 }

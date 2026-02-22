@@ -17,7 +17,7 @@ export interface SimulationResult {
   flashLoanPremium: bigint;
   totalRepayment: bigint;
   expectedReturn: bigint;
-  simulationMethod: 'on-chain' | 'local';
+  simulationMethod: 'on-chain' | 'local' | 'off-chain-unverified';
   timestamp: number;
   blockNumber: number;
   error?: string;

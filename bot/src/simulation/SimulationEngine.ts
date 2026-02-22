@@ -1,8 +1,12 @@
 /**
  * @file SimulationEngine.ts
  * @description Orchestrates the simulation pipeline. Receives candidate paths from the StrategyEngine.
- *              For each path, runs on-chain simulation via eth_call, estimates gas, calculates net profit,
- *              and returns ranked, profitable simulation results ready for execution.
+ *              For each path, runs on-chain simulation via eth_call (if contract deployed), estimates
+ *              gas, calculates net profit, and returns ranked, profitable simulation results.
+ *
+ *              IMPORTANT: If ARBITRAGE_EXECUTOR_ADDRESS is zero (contract not deployed), the engine
+ *              falls back to off-chain math only and marks results as UNVERIFIED. These results are
+ *              logged but NOT sent to ExecutionEngine.
  */
 
 import { ethers } from 'ethers';
@@ -13,11 +17,20 @@ import { GasEstimator } from './GasEstimator';
 import { ProfitCalculator } from './ProfitCalculator';
 import { OracleRegistry } from '../oracle/OracleRegistry';
 import { TOKEN_BY_ADDRESS } from '../config/addresses';
+import { FLASH_LOAN_PREMIUM_BPS, FLASH_LOAN_PREMIUM_DIVISOR } from '../config/constants';
+import { fromBigInt } from '../utils/bigIntMath';
 import { createModuleLogger } from '../utils/logger';
 import type { ArbitragePath } from '../graph/types';
 import type { SimulationResult } from './types';
 
 const logger = createModuleLogger('SimulationEngine');
+
+// Maximum realistic profit as a fraction of flash loan amount (50%)
+// Anything above this is almost certainly a math/oracle error
+const MAX_PROFIT_FRACTION = 0.5;
+
+// Zero address constant
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export class SimulationEngine extends EventEmitter {
   private config: Config;
@@ -27,6 +40,7 @@ export class SimulationEngine extends EventEmitter {
   private provider: ethers.Provider;
   private simulationCount: number;
   private profitableCount: number;
+  private contractDeployed: boolean;
 
   constructor(
     config: Config,
@@ -39,7 +53,22 @@ export class SimulationEngine extends EventEmitter {
     this.simulationCount = 0;
     this.profitableCount = 0;
 
-    this.onChainSimulator = new OnChainSimulator(provider, config.arbitrageExecutorAddress);
+    // Check if contract is deployed
+    this.contractDeployed = (
+      !!config.arbitrageExecutorAddress &&
+      config.arbitrageExecutorAddress !== ZERO_ADDRESS &&
+      config.arbitrageExecutorAddress.length === 42
+    );
+
+    if (!this.contractDeployed) {
+      logger.warn(
+        '⚠️  ArbitrageExecutor contract not deployed — running in OFF-CHAIN SIMULATION ONLY mode. ' +
+        'Profitable opportunities will be logged but NOT executed. ' +
+        'Deploy the contract and set ARBITRAGE_EXECUTOR_ADDRESS to enable execution.'
+      );
+    }
+
+    this.onChainSimulator = new OnChainSimulator(provider, config.arbitrageExecutorAddress || ZERO_ADDRESS);
     this.gasEstimator = new GasEstimator(provider, oracleRegistry, config.priorityFeeGwei);
     this.profitCalculator = new ProfitCalculator(oracleRegistry, config.slippageBufferBps);
   }
@@ -56,9 +85,10 @@ export class SimulationEngine extends EventEmitter {
     const blockNumber = await this.provider.getBlockNumber();
     const results: SimulationResult[] = [];
 
-    logger.info('Starting simulation batch', {
+    logger.debug('Starting simulation batch', {
       candidates: candidates.length,
       blockNumber,
+      mode: this.contractDeployed ? 'on-chain' : 'off-chain-only',
     });
 
     // Simulate each candidate
@@ -88,12 +118,24 @@ export class SimulationEngine extends EventEmitter {
       duration,
     });
 
-    // Emit profitable results
+    // Only emit for execution if contract is deployed
     if (profitable.length > 0) {
-      this.emit('profitableOpportunities', profitable);
+      if (this.contractDeployed) {
+        this.emit('profitableOpportunities', profitable);
+      } else {
+        logger.info(
+          `🔍 [DRY-RUN] Found ${profitable.length} profitable opportunities (contract not deployed — not executing)`,
+          {
+            best: profitable[0]
+              ? `$${profitable[0].netProfitUsd.toFixed(4)} net profit`
+              : 'none',
+          }
+        );
+      }
     }
 
-    return profitable;
+    // Return empty array if contract not deployed — prevents ExecutionEngine from running
+    return this.contractDeployed ? profitable : [];
   }
 
   /**
@@ -115,7 +157,7 @@ export class SimulationEngine extends EventEmitter {
         extraData: '0x',
       }));
 
-      const deadline = Math.floor(Date.now() / 1000) + 300; // 5 minutes
+      const deadline = Math.floor(Date.now() / 1000) + 300;
 
       // Estimate gas cost
       const gasEstimate = await this.gasEstimator.estimateGasCost(path.edges, blockNumber);
@@ -129,24 +171,66 @@ export class SimulationEngine extends EventEmitter {
         return null;
       }
 
-      // Calculate minimum return
-      const minReturn = await this.profitCalculator.calculateMinReturn(
-        path.flashAmount, gasEstimate, path.flashAsset
-      );
+      let expectedReturn: bigint;
+      let simulationMethod: 'on-chain' | 'local' | 'off-chain-unverified';
 
-      // Run on-chain simulation
-      const simResult = await this.onChainSimulator.simulate(
-        path.flashAsset, path.flashAmount, steps, 0n, deadline
-      );
+      if (this.contractDeployed) {
+        // ── On-chain simulation via eth_call ──────────────────────────────────
+        const simResult = await this.onChainSimulator.simulate(
+          path.flashAsset, path.flashAmount, steps, 0n, deadline
+        );
+
+        if (simResult.isProfitable) {
+          expectedReturn = path.flashAmount + simResult.profit;
+          simulationMethod = 'on-chain';
+        } else {
+          // On-chain says not profitable — trust it
+          return null;
+        }
+      } else {
+        // ── Off-chain math only (contract not deployed) ───────────────────────
+        // Use the expectedOutputAmount from strategy math
+        expectedReturn = path.expectedOutputAmount;
+        simulationMethod = 'off-chain-unverified';
+      }
+
+      // ── Sanity check: profit can't exceed MAX_PROFIT_FRACTION of flash amount ──
+      const premium = (path.flashAmount * FLASH_LOAN_PREMIUM_BPS) / FLASH_LOAN_PREMIUM_DIVISOR;
+      const totalRepayment = path.flashAmount + premium;
+
+      if (expectedReturn <= totalRepayment) {
+        return null; // Not profitable after repayment
+      }
+
+      const grossProfitToken = expectedReturn - totalRepayment;
+
+      // Sanity cap: gross profit token amount can't exceed MAX_PROFIT_FRACTION of flash amount
+      const maxReasonableProfit = (path.flashAmount * BigInt(Math.floor(MAX_PROFIT_FRACTION * 10000))) / 10000n;
+      if (grossProfitToken > maxReasonableProfit) {
+        logger.warn('Profit exceeds sanity cap — likely oracle/math error, skipping', {
+          pathId: path.id,
+          flashAmount: fromBigInt(path.flashAmount, tokenInfo.decimals).toFixed(4),
+          grossProfitToken: fromBigInt(grossProfitToken, tokenInfo.decimals).toFixed(4),
+          maxReasonable: fromBigInt(maxReasonableProfit, tokenInfo.decimals).toFixed(4),
+          simulationMethod,
+        });
+        return null;
+      }
 
       // Calculate profit breakdown
-      const expectedReturn = simResult.isProfitable
-        ? path.flashAmount + simResult.profit
-        : path.expectedOutputAmount;
-
       const profitBreakdown = await this.profitCalculator.calculateProfit(
         path.flashAsset, path.flashAmount, expectedReturn, gasEstimate
       );
+
+      // Additional USD sanity check: net profit can't exceed $500k per trade
+      if (profitBreakdown.netProfitUsd > 500_000) {
+        logger.warn('Net profit USD exceeds sanity cap — likely oracle error, skipping', {
+          pathId: path.id,
+          netProfitUsd: profitBreakdown.netProfitUsd.toFixed(2),
+          simulationMethod,
+        });
+        return null;
+      }
 
       return {
         path,
@@ -159,7 +243,7 @@ export class SimulationEngine extends EventEmitter {
         flashLoanPremium: profitBreakdown.flashLoanPremium,
         totalRepayment: path.flashAmount + profitBreakdown.flashLoanPremium,
         expectedReturn,
-        simulationMethod: 'on-chain',
+        simulationMethod,
         timestamp: Date.now(),
         blockNumber,
       };
@@ -170,6 +254,13 @@ export class SimulationEngine extends EventEmitter {
       });
       return null;
     }
+  }
+
+  /**
+   * Returns whether the contract is deployed and execution is enabled.
+   */
+  isContractDeployed(): boolean {
+    return this.contractDeployed;
   }
 
   /**

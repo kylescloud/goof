@@ -3,6 +3,10 @@
  * @description Abstract base class for all strategy modules. Provides reference to pool registry,
  *              token graph, DEX adapter registry, oracle registry, and config. Defines the abstract
  *              findOpportunities() method. Provides shared helper methods.
+ *
+ *              VERBOSE MODE: When LOG_OPPORTUNITIES=true (default), logs EVERY candidate path
+ *              scanned — profitable or not — with full details: amounts, gross profit, gas cost,
+ *              net profit, and verdict.
  */
 
 import { ethers } from 'ethers';
@@ -16,6 +20,11 @@ import type { ArbitragePath, GraphEdge } from '../graph/types';
 import type { IStrategy, SwapStepParams } from './types';
 import { fromBigInt } from '../utils/bigIntMath';
 import { createModuleLogger } from '../utils/logger';
+
+// ─── Verbose opportunity logging ─────────────────────────────────────────────
+// Set LOG_OPPORTUNITIES=false in .env to suppress per-candidate logs
+const LOG_OPPORTUNITIES = process.env.LOG_OPPORTUNITIES !== 'false';
+const LOG_UNPROFITABLE  = process.env.LOG_UNPROFITABLE  !== 'false'; // log even unprofitable
 
 export abstract class BaseStrategy implements IStrategy {
   abstract readonly name: string;
@@ -108,32 +117,83 @@ export abstract class BaseStrategy implements IStrategy {
 
   /**
    * Estimates the net profit in USD for a path.
+   * Also logs the full opportunity details (profitable or not) when verbose mode is on.
    */
   protected async estimateNetProfitUsd(
     flashAsset: string,
     flashAmount: bigint,
     expectedReturn: bigint,
     flashAssetDecimals: number,
-    edges: GraphEdge[]
+    edges: GraphEdge[],
+    candidateLabel?: string
   ): Promise<{ grossProfitUsd: number; gasCostUsd: number; netProfitUsd: number }> {
-    // Calculate flash loan premium
+    // Calculate flash loan premium (0.05% = 5 bps)
     const premium = (flashAmount * FLASH_LOAN_PREMIUM_BPS) / FLASH_LOAN_PREMIUM_DIVISOR;
     const totalRepayment = flashAmount + premium;
 
-    if (expectedReturn <= totalRepayment) {
-      return { grossProfitUsd: 0, gasCostUsd: 0, netProfitUsd: 0 };
+    // Get asset price for USD conversion
+    // OracleRegistry always returns a value (stablecoin fallback = $1.00, ETH fallback = $2000)
+    let assetPrice = 1.0;
+    try {
+      const priceResult = await this.oracleRegistry.getTokenPriceUSD(flashAsset);
+      // Only use oracle price if it's non-zero and reasonable
+      if (priceResult.priceUsd > 0 && priceResult.priceUsd < 1_000_000) {
+        assetPrice = priceResult.priceUsd;
+      }
+    } catch {
+      // fallback: use 1.0 for stablecoins (safe default)
     }
 
-    const grossProfit = expectedReturn - totalRepayment;
+    const flashAmountHuman = fromBigInt(flashAmount, flashAssetDecimals);
+    const returnHuman      = fromBigInt(expectedReturn, flashAssetDecimals);
+    const repayHuman       = fromBigInt(totalRepayment, flashAssetDecimals);
 
-    // Convert to USD
-    const assetPrice = await this.oracleRegistry.getTokenPriceUSD(flashAsset);
-    const grossProfitUsd = fromBigInt(grossProfit, flashAssetDecimals) * assetPrice.priceUsd;
+    if (expectedReturn <= totalRepayment) {
+      const deficit = fromBigInt(totalRepayment - expectedReturn, flashAssetDecimals);
+      const deficitUsd = deficit * assetPrice;
+
+      if (LOG_OPPORTUNITIES && LOG_UNPROFITABLE) {
+        this._logCandidate({
+          label: candidateLabel,
+          edges,
+          flashAsset,
+          flashAmountHuman,
+          returnHuman,
+          repayHuman,
+          grossProfitUsd: 0,
+          gasCostUsd: 0,
+          netProfitUsd: -(deficitUsd),
+          verdict: `UNPROFITABLE (deficit: $${deficitUsd.toFixed(4)})`,
+        });
+      }
+      return { grossProfitUsd: 0, gasCostUsd: 0, netProfitUsd: -(deficitUsd) };
+    }
+
+    const grossProfit    = expectedReturn - totalRepayment;
+    const grossProfitUsd = fromBigInt(grossProfit, flashAssetDecimals) * assetPrice;
 
     // Estimate gas cost
     const gasCostUsd = await this._estimateGasCostUsd(edges);
-
     const netProfitUsd = grossProfitUsd - gasCostUsd;
+
+    const verdict = netProfitUsd >= this.config.minProfitThresholdUsd
+      ? `✅ PROFITABLE ($${netProfitUsd.toFixed(4)} net)`
+      : `⚠️  BELOW THRESHOLD ($${netProfitUsd.toFixed(4)} < $${this.config.minProfitThresholdUsd} min)`;
+
+    if (LOG_OPPORTUNITIES) {
+      this._logCandidate({
+        label: candidateLabel,
+        edges,
+        flashAsset,
+        flashAmountHuman,
+        returnHuman,
+        repayHuman,
+        grossProfitUsd,
+        gasCostUsd,
+        netProfitUsd,
+        verdict,
+      });
+    }
 
     return { grossProfitUsd, gasCostUsd, netProfitUsd };
   }
@@ -170,6 +230,50 @@ export abstract class BaseStrategy implements IStrategy {
   }
 
   /**
+   * Logs a full candidate opportunity with all details.
+   */
+  private _logCandidate(params: {
+    label?: string;
+    edges: GraphEdge[];
+    flashAsset: string;
+    flashAmountHuman: number;
+    returnHuman: number;
+    repayHuman: number;
+    grossProfitUsd: number;
+    gasCostUsd: number;
+    netProfitUsd: number;
+    verdict: string;
+  }): void {
+    const { label, edges, flashAsset, flashAmountHuman, returnHuman, repayHuman,
+            grossProfitUsd, gasCostUsd, netProfitUsd, verdict } = params;
+
+    // Build path string: TOKEN_A -[DEX fee%]-> TOKEN_B -[DEX fee%]-> TOKEN_C
+    const pathStr = edges.map((e, i) => {
+      const feeStr = e.fee >= 100 ? `${(e.fee / 10000 * 100).toFixed(2)}%` : `${e.fee}bps`;
+      const fromShort = e.from.slice(0, 6) + '…' + e.from.slice(-4);
+      const toShort   = e.to.slice(0, 6)   + '…' + e.to.slice(-4);
+      const poolShort = e.poolAddress.slice(0, 8) + '…';
+      return i === 0
+        ? `${fromShort} -[${e.dexName} ${feeStr} pool:${poolShort}]-> ${toShort}`
+        : `-[${e.dexName} ${feeStr} pool:${poolShort}]-> ${toShort}`;
+    }).join(' ');
+
+    const flashShort = flashAsset.slice(0, 6) + '…' + flashAsset.slice(-4);
+
+    this.logger.info(`CANDIDATE ${label ?? ''}`, {
+      path: pathStr,
+      flashAsset: flashShort,
+      flashAmount: flashAmountHuman.toFixed(6),
+      expectedReturn: returnHuman.toFixed(6),
+      repayment: repayHuman.toFixed(6),
+      grossProfitUsd: `$${grossProfitUsd.toFixed(4)}`,
+      gasCostUsd: `$${gasCostUsd.toFixed(4)}`,
+      netProfitUsd: `$${netProfitUsd.toFixed(4)}`,
+      verdict,
+    });
+  }
+
+  /**
    * Estimates gas cost in USD for a set of edges.
    */
   private async _estimateGasCostUsd(edges: GraphEdge[]): Promise<number> {
@@ -180,14 +284,22 @@ export abstract class BaseStrategy implements IStrategy {
       totalGas += version === ProtocolVersion.V3 ? Number(GAS_PER_V3_SWAP) : Number(GAS_PER_V2_SWAP);
     }
 
-    // Get ETH price
-    const ethPrice = await this.oracleRegistry.getTokenPriceUSD(
-      '0x4200000000000000000000000000000000000006' // WETH on Base
-    );
+    // Get ETH price — OracleRegistry always returns a value (fallback = $2000)
+    let ethPriceUsd = 2000; // conservative fallback
+    try {
+      const ethPrice = await this.oracleRegistry.getTokenPriceUSD(
+        '0x4200000000000000000000000000000000000006' // WETH on Base
+      );
+      if (ethPrice.priceUsd > 100 && ethPrice.priceUsd < 100_000) {
+        ethPriceUsd = ethPrice.priceUsd;
+      }
+    } catch {
+      // use fallback
+    }
 
-    // Assume 0.1 gwei base fee on Base (typically very low)
-    const baseFeeGwei = 0.1;
+    // Base L2 typically 0.001–0.01 gwei base fee
+    const baseFeeGwei = 0.005;
     const gasCostEth = totalGas * baseFeeGwei * 1e-9;
-    return gasCostEth * ethPrice.priceUsd;
+    return gasCostEth * ethPriceUsd;
   }
 }
