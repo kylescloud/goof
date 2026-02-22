@@ -670,11 +670,13 @@ contract ArbitrageExecutor is IFlashLoanSimpleReceiver {
      * @notice Helper to perform a staticcall on a pool and return the raw data.
      * @param pool The pool address.
      * @param data The calldata.
-     * @return The return data.
+     * @return The return data (empty bytes on failure).
      */
     function _staticCallPool(address pool, bytes memory data) internal view returns (bytes memory) {
         (bool success, bytes memory returnData) = pool.staticcall(data);
-        require(success, "Pool staticcall failed");
+        if (!success) {
+            return "";
+        }
         return returnData;
     }
 

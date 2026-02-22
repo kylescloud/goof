@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Step-by-step verification
+
+CONTRACT_ADDRESS="0x9A8889A112120C55aa993d8EA81fF9988D7De92d"
+
+# First, encode V2 router IDs array
+V2_IDS=$(cast abi-encode "uint8[]" 0 2 6 8)
+echo "V2 IDs: $V2_IDS"
+
+# Encode V2 router addresses array
+V2_ADDRS=$(cast abi-encode "address[]" \
+  0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24 \
+  0x6BDED42c6DA8FBf0d2bA55B2fa120C5e0c8D7891 \
+  0x327Df1E6de05895d2ab08513aaDD9313Fe505d86 \
+  0x0000000000000000000000000000000000000000)
+echo "V2 Addrs: $V2_ADDRS"
+
+# Encode V3 router IDs array
+V3_IDS=$(cast abi-encode "uint8[]" 1 3 5 7 9)
+echo "V3 IDs: $V3_IDS"
+
+# Encode V3 router addresses array
+V3_ADDRS=$(cast abi-encode "address[]" \
+  0x2626664c2603336E57B271c5C0b26F421741e481 \
+  0xFB7eF66a7e61224DD6FcD0D7d9C3be5C8B049b9f \
+  0xBE6D8f0d05cC4be24d5167a3eF062215bE6D18a5 \
+  0x1B8eea9315bE495187D873DA7773a874545D9D48 \
+  0x1b81D678ffb9C0263b24A97847620C99d213eB14)
+echo "V3 Addrs: $V3_ADDRS"
+
+# Now encode the full constructor
+FULL_ARGS=$(cast abi-encode \
+  "constructor(address,address,uint256,uint8[],address[],uint8[],address[])" \
+  0xA238Dd80C259a72e81d7e4664a9801593F98d1c5 \
+  0xd2Cb0846eE44729c25Db360739797eDa49f43A1d \
+  0 \
+  "$V2_IDS" \
+  "$V2_ADDRS" \
+  "$V3_IDS" \
+  "$V3_ADDRS")
+
+echo ""
+echo "Full constructor args: $FULL_ARGS"
+echo ""
+
+# Verify
+forge verify-contract \
+  "$CONTRACT_ADDRESS" \
+  src/ArbitrageExecutor.sol:ArbitrageExecutor \
+  --chain-id 8453 \
+  --watch \
+  --constructor-args "$FULL_ARGS" \
+  --etherscan-api-key "$BASESCAN_API_KEY" \
+  --verifier-url https://api.basescan.org/api

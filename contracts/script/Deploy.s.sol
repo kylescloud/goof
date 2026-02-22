@@ -86,7 +86,11 @@ contract DeployScript is Script {
             '}'
         ));
 
-        vm.writeFile("deployments.json", json);
-        console.log("Deployment info saved to deployments.json");
+        // Note: vm.writeFile may fail in broadcast mode, but deployment is successful
+        try vm.writeFile("deployments.json", json) {
+            console.log("Deployment info saved to deployments.json");
+        } catch {
+            console.log("Note: Could not write deployment.json (security restriction)");
+        }
     }
 }

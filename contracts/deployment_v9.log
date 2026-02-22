@@ -1,0 +1,35 @@
+No files changed, compilation skipped
+Script ran successfully.
+
+== Logs ==
+  === ArbitrageExecutor Deployed ===
+  Address: 0x27B1ab8fC2937A0dAD894dBDe6Ad4bbD3ae41dd3
+  Owner: 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+  Executor: 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
+  Min Profit: 0
+  Aave Pool: 0xA238Dd80C259a72e81d7e4664a9801593F98d1c5
+  Chain ID: 8453
+  Note: Could not write deployment.json (security restriction)
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 8453
+
+Estimated gas price: 0.01025 gwei
+
+Estimated total gas used for script: 3045354
+
+Estimated amount required: 0.0000312148785 ETH
+
+==========================
+
+Transactions saved to: /workspace/arbitrage-bot/contracts/broadcast/Deploy.s.sol/8453/run-latest.json
+
+Sensitive values saved to: /workspace/arbitrage-bot/contracts/cache/Deploy.s.sol/8453/run-latest.json
+
+Error: Failed to send transaction after 4 attempts Err(server returned an error response: error code -32000: insufficient funds for gas * price + value: balance 0, tx cost 31242395732661, overshot 31242395732661)
+
+Context:
+- server returned an error response: error code -32000: insufficient funds for gas * price + value: balance 0, tx cost 31238799713296, overshot 31238799713296
