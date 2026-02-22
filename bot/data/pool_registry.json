@@ -1,1 +1,2248 @@
-{"meta":{"chainId":8453,"lastIndexedBlock":0,"lastUpdatedTimestamp":"2024-01-01T00:00:00.000Z","totalPools":0,"aaveAssets":[]},"pools":{}}
+{
+  "meta": {
+    "chainId": 8453,
+    "lastIndexedBlock": 42499944,
+    "lastUpdatedTimestamp": "2026-02-22T19:40:35.519Z",
+    "totalPools": 91,
+    "aaveAssets": [
+      "0x4200000000000000000000000000000000000006",
+      "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22",
+      "0xd9aaec86b65d86f6a7b5b1b0c42ffa531710b6ca",
+      "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+      "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "0x04c0599ae5a44757c0af6f9ec3b93da8976c150a",
+      "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "0x2416092f143378750bb29b79ed961ab195cceea5",
+      "0x6bb7a212910682dcfdbd5bcbb3e28fb4e8da10ee",
+      "0xedfa23602d0ec14714057867a78d01e94176bea0",
+      "0xecac9c5f704e954931349da37f60e39f515c11c1",
+      "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42",
+      "0x63706e401c06ac8513145b7687a14804d17f814b",
+      "0x236aa50979d5f3de3bd1eeb40e81137f22ab794b",
+      "0x660975730059246a68521a3e2fbd4740173100f5"
+    ]
+  },
+  "pools": {
+    "0xd0b53d9277642d899df5c87a3966a349a798f224": {
+      "address": "0xd0b53D9277642d899DF5C87A3966A349A798F224",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "1503667127538295124",
+      "sqrtPriceX96": "3492453325597188818858388",
+      "tick": -200600,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x6c561b446416e1a00e8e93e221854d6ea4171372": {
+      "address": "0x6c561B446416E1A00E8E93E221854d6eA4171372",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "14014972773264448230",
+      "sqrtPriceX96": "3490082897415563282112005",
+      "tick": -200614,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x0b1c2dcbbfa744ebd3fc17ff1a96a1e1eb4b2d69": {
+      "address": "0x0b1C2DCbBfA744ebD3fC17fF1A96A1E1Eb4B2d69",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 10000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "10275408107984890",
+      "sqrtPriceX96": "3502229809403190436100116",
+      "tick": -200544,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x4c36388be6f416a29c8d8eee81c771ce6be14b18": {
+      "address": "0x4C36388bE6F416A29C8d8Eee81C771cE6bE14B18",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "3029433528811523",
+      "sqrtPriceX96": "3492326808056831214138127",
+      "tick": -200601,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x3ddf264ac95d19e81f8c25f4c300c4e59e424d43": {
+      "address": "0x3DdF264AC95D19e81f8c25f4c300C4e59e424d43",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "281290762086036",
+      "sqrtPriceX96": "3490012396697633105729363",
+      "tick": -200614,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xd92e0767473d1e3ff11ac036f2b1db90ad0ae55f": {
+      "address": "0xd92E0767473D1E3FF11Ac036f2b1DB90aD0aE55F",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+        "symbol": "USDT",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "3659081250241788",
+      "sqrtPriceX96": "3495414434422310179741419",
+      "tick": -200583,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xce1d8c90a5f0ef28fe0f457e5ad615215899319a": {
+      "address": "0xcE1d8c90A5F0ef28fe0F457e5Ad615215899319a",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+        "symbol": "USDT",
+        "decimals": 6
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "2987986348541447",
+      "sqrtPriceX96": "3491727413174225622071078",
+      "tick": -200604,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x10648ba41b8565907cfa1496765fa4d95390aa0d": {
+      "address": "0x10648BA41B8565907Cfa1496765fA4D95390aa0d",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+        "symbol": "cbETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 500,
+      "aaveAsset": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "liquidity": "5163513081145187490310",
+      "sqrtPriceX96": "83947654697876811932941943118",
+      "tick": 1157,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x7b9636266734270de5be02544c04e27046903ff8": {
+      "address": "0x7B9636266734270DE5bE02544c04E27046903ff8",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+        "symbol": "cbETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "aaveAsset": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "liquidity": "2008567132672665337",
+      "sqrtPriceX96": "83900282187832663111488971494",
+      "tick": 1146,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x20e068d76f9e90b90604500b84c7e19dcb923e7e": {
+      "address": "0x20E068D76f9E90b90604500B84c7e19dCB923e7e",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "symbol": "wstETH",
+        "decimals": 18
+      },
+      "fee": 100,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "106583598911050899623033",
+      "sqrtPriceX96": "71563973215229684365702034994",
+      "tick": -2035,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x6f4482cbf7b43599078fcb012732e20480015644": {
+      "address": "0x6f4482cBF7b43599078fcb012732e20480015644",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "symbol": "wstETH",
+        "decimals": 18
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "246975227026148428307",
+      "sqrtPriceX96": "71563572191580689897170840490",
+      "tick": -2036,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x33dfd66802cc936a58a0b25b5e4f792c1ca2312e": {
+      "address": "0x33dfD66802CC936a58a0B25B5E4F792c1CA2312E",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+        "symbol": "weETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 500,
+      "aaveAsset": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+      "liquidity": "0",
+      "sqrtPriceX96": "1461446703485210103287273052203988822378723970341",
+      "tick": 887271,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x06b80b12048a37f3762a0015a80ac0bb37c4e539": {
+      "address": "0x06b80B12048a37f3762a0015A80Ac0BB37C4e539",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+        "symbol": "weETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "aaveAsset": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+      "liquidity": "3699910137837320",
+      "sqrtPriceX96": "82702108228319017700182889945",
+      "tick": 858,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x58603091b4da10685e114d85e330cab36e655627": {
+      "address": "0x58603091b4Da10685e114d85E330Cab36e655627",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        "symbol": "ezETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 500,
+      "aaveAsset": "0x2416092f143378750bb29b79eD961ab195CcEea5",
+      "liquidity": "140810291454767766175",
+      "sqrtPriceX96": "81971097683604514731499605748",
+      "tick": 680,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x78adee7cc019eecfc31f6b961d51177a5830e738": {
+      "address": "0x78aDEE7Cc019eECFc31F6b961d51177A5830E738",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        "symbol": "ezETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "aaveAsset": "0x2416092f143378750bb29b79eD961ab195CcEea5",
+      "liquidity": "0",
+      "sqrtPriceX96": "81615161794285813347859672296",
+      "tick": 593,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x4e840aadd28da189b9906674b4afcb77c128d9ea": {
+      "address": "0x4e840AADD28DA189B9906674B4Afcb77C128d9ea",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c",
+        "symbol": "rETH",
+        "decimals": 18
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x7aea2e8a3843516afa07293a10ac8e49906dabd1": {
+      "address": "0x7AeA2E8A3843516afa07293a10Ac8E49906dabD1",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "54241164983993664",
+      "sqrtPriceX96": "134477605871456685163960",
+      "tick": -265743,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x8c7080564b5a792a33ef2fd473fba6364d5495e5": {
+      "address": "0x8c7080564B5A792A33Ef2FD473fbA6364d5495e5",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "98753935711165455",
+      "sqrtPriceX96": "134579805766876545903969",
+      "tick": -265727,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xfbb6eed8e7aa03b138556eedaf5d271a5e1e43ef": {
+      "address": "0xfBB6Eed8e7aa03B138556eeDaF5D271A5E1e43ef",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 500,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "2250848850565",
+      "sqrtPriceX96": "3051323706220267314288053330",
+      "tick": -65139,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xec558e484cc9f2210714e345298fdc53b253c27d": {
+      "address": "0xeC558e484cC9f2210714E345298fdc53B253c27D",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 3000,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "653777713885",
+      "sqrtPriceX96": "3052113874246531111703430018",
+      "tick": -65134,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x9fee7385a2979d15277c3467db7d99ef1a2669d7": {
+      "address": "0x9fee7385a2979D15277C3467Db7D99EF1A2669D7",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+        "symbol": "tBTC",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "aaveAsset": "0x236aa50979D5f3De3Bd1Eeb40E81137F22ab794b",
+      "liquidity": "22340868093424803",
+      "sqrtPriceX96": "466871149156411173302803615160",
+      "tick": 35476,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x06959273e9a65433de71f5a452d529544e07ddd0": {
+      "address": "0x06959273E9A65433De71F5A452D529544E07dDD0",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 100,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "6028538625726",
+      "sqrtPriceX96": "79218686851636809310258014462",
+      "tick": -3,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x92722287d2819012dd8ec07b4e426ac00dd11103": {
+      "address": "0x92722287D2819012dD8EC07b4e426AC00Dd11103",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "3019971948473",
+      "sqrtPriceX96": "79206310924653378127965960562",
+      "tick": -6,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x6d0b9c9e92a3de30081563c3657b5258b3ffa38b": {
+      "address": "0x6d0b9C9E92a3De30081563c3657B5258b3fFa38B",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+        "symbol": "DAI",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 100,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x6446021f4e396da3df4235c62537431372195d38": {
+      "address": "0x6446021F4E396dA3df4235C62537431372195D38",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+        "symbol": "DAI",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "624183651023284070594424",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x3932b99ee1be1777ed661e08288108a423043a75": {
+      "address": "0x3932B99ee1Be1777ED661e08288108A423043a75",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
+        "symbol": "GHO",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
+      "liquidity": "0",
+      "sqrtPriceX96": "79167795824036407478942",
+      "tick": -276340,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xbaf56aed39b4583c526971ab51f8f2d4d8e59eb7": {
+      "address": "0xbaF56aeD39b4583c526971Ab51f8F2D4d8e59eb7",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
+        "symbol": "GHO",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 3000,
+      "aaveAsset": "0x6Bb7a212910682DCFdbd5BCBb3e28FB4E8da10Ee",
+      "liquidity": "17492636858071342619",
+      "sqrtPriceX96": "79299485230687406003699",
+      "tick": -276307,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x7279c08a36333e12c3fc81747963264c100d66fb": {
+      "address": "0x7279c08A36333e12c3Fc81747963264c100D66fB",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+        "symbol": "EURC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+      "liquidity": "2874837767777",
+      "sqrtPriceX96": "85981455680300040592086427188",
+      "tick": 1636,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x3d5d143381916280ff91407febeb52f2b60f33cf": {
+      "address": "0x3d5D143381916280ff91407FeBEB52f2b60f33Cf",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
+        "symbol": "AERO",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "72453214008742279000922",
+      "sqrtPriceX96": "6227573887141222419945009344158",
+      "tick": 87292,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x0d5959a52e7004b601f0be70618d01ac3cdce976": {
+      "address": "0x0D5959a52E7004b601f0bE70618D01aC3cDce976",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
+        "symbol": "AERO",
+        "decimals": 18
+      },
+      "fee": 10000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "1722211565122717965194",
+      "sqrtPriceX96": "6211591324666479187840925399186",
+      "tick": 87241,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xc9034c3e7f58003e6ae0c8438e7c8f4598d5acaa": {
+      "address": "0xc9034c3E7F58003E6ae0C8438e7c8f4598d5ACAA",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
+        "symbol": "DEGEN",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "593337558668458002738258",
+      "sqrtPriceX96": "137409844424587103026326081766217",
+      "tick": 149175,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x0ca6485b7e9cf814a3fd09d81672b07323535b64": {
+      "address": "0x0cA6485b7e9cF814A3Fd09d81672B07323535b64",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
+        "symbol": "DEGEN",
+        "decimals": 18
+      },
+      "fee": 10000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "174365909420209805722",
+      "sqrtPriceX96": "136602134178356484234858866479473",
+      "tick": 149057,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x29715d8d279cab143a12ff515b40a2b35d7bad37": {
+      "address": "0x29715d8D279cAB143A12fF515b40a2b35d7BAD37",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
+        "symbol": "DEGEN",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 10000,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "283641511351693",
+      "sqrtPriceX96": "2034379480845390377113",
+      "tick": -349571,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x76bf0abd20f1e0155ce40a62615a90a709a6c3d8": {
+      "address": "0x76Bf0abD20f1e0155Ce40A62615a90A709a6C3D8",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x532f27101965dd16442E59d40670FaF5eBB142E4",
+        "symbol": "BRETT",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "74287103600006045012208",
+      "sqrtPriceX96": "41247938748937597905976465920451",
+      "tick": 125106,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xba3f945812a83471d709bce9c3ca699a19fb46f7": {
+      "address": "0xBA3F945812a83471d709BCe9C3CA699A19FB46f7",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x532f27101965dd16442E59d40670FaF5eBB142E4",
+        "symbol": "BRETT",
+        "decimals": 18
+      },
+      "fee": 10000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "28436582743229327876839",
+      "sqrtPriceX96": "41190187692932813049463470337371",
+      "tick": 125078,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xbf0a0c12e7c0610002f6aa6e609755ede42d6a4d": {
+      "address": "0xBF0A0C12E7C0610002F6Aa6E609755EDe42D6A4d",
+      "dex": "Uniswap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x532f27101965dd16442E59d40670FaF5eBB142E4",
+        "symbol": "BRETT",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 10000,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "21985520028486018",
+      "sqrtPriceX96": "6695576719826104710024",
+      "tick": -325745,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xcdac0d6c6c59727a65f871236188350531885c43": {
+      "address": "0xcDAC0d6c6C59727a65F871236188350531885C43",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "3534665938037019449917",
+      "reserve1": "6859468990256",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x3548029694fbb241d45fb24ba0cd9c9d4e745f16": {
+      "address": "0x3548029694fbB241D45FB24Ba0cd9c9d4E745f16",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 5,
+      "stable": true,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "7469780034519378026",
+      "reserve1": "43572140175",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xffd4ec4bd2211cbfd58c209fdecc65f63f2b9e4c": {
+      "address": "0xFFD4Ec4BD2211cBFD58C209FdEcC65F63f2b9e4c",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+        "symbol": "USDT",
+        "decimals": 6
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "262286026",
+      "reserve1": "1",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x27a8afa3bd49406e48a074350fb7b2020c43b2bd": {
+      "address": "0x27a8Afa3Bd49406e48a074350fB7b2020c43B2bD",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 5,
+      "stable": true,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "24580827517",
+      "reserve1": "21617282100",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x96508ae8037c6bd16162620187691f1c1e3e07c1": {
+      "address": "0x96508AE8037c6bD16162620187691F1c1e3e07C1",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+        "symbol": "USDT",
+        "decimals": 6
+      },
+      "fee": 5,
+      "stable": true,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "1104135035",
+      "reserve1": "1351017038",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x44ecc644449fc3a9858d2007caa8cfaa4c561f91": {
+      "address": "0x44Ecc644449fC3a9858d2007CaA8CFAa4C561f91",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+        "symbol": "cbETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "22953318537788498779",
+      "reserve1": "25730087855106080167",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x9e8bfeb5c73f3f897bebdb49cc4161fece0b0c55": {
+      "address": "0x9E8bfEB5c73F3f897BebdB49CC4161FecE0B0c55",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+        "symbol": "cbETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 5,
+      "stable": true,
+      "aaveAsset": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "1749909416406214624",
+      "reserve1": "3959926361176202714",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x29bbb5f85f01702ec85d217ceeb2d9657700cf04": {
+      "address": "0x29BBb5F85F01702Ec85D217CEEb2d9657700cF04",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "symbol": "wstETH",
+        "decimals": 18
+      },
+      "fee": 5,
+      "stable": true,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "1911638543032207273",
+      "reserve1": "695632960693672884",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xa6385c73961dd9c58db2ef0c4eb98ce4b60651e8": {
+      "address": "0xA6385c73961dd9C58db2EF0c4EB98cE4B60651e8",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "symbol": "wstETH",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "169566621098292021055",
+      "reserve1": "138677842756355795263",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xb8866732424acddd729c6fcf7146b19bfe4a2e36": {
+      "address": "0xb8866732424AcDdd729C6fcf7146b19bFE4A2e36",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c",
+        "symbol": "rETH",
+        "decimals": 18
+      },
+      "fee": 5,
+      "stable": true,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "1026168546213090265",
+      "reserve1": "421251571735277239",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xa6f8a6bc3dea678d5ba786f2ad2f5f93d1c87c18": {
+      "address": "0xA6F8A6bc3deA678d5bA786f2Ad2f5F93d1c87c18",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c",
+        "symbol": "rETH",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "165157135743626284",
+      "reserve1": "142976822868177282",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x67b00b46fa4f4f24c03855c5c8013c0b938b3eec": {
+      "address": "0x67b00B46FA4f4F24c03855c5C8013C0B938B3eEc",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+        "symbol": "DAI",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 5,
+      "stable": true,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "4418263656022172526481",
+      "reserve1": "4844934929",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x2578365b3dfa7ffe60108e181efb79feddec2319": {
+      "address": "0x2578365B3dfA7FfE60108e181EFb79FeDdec2319",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "770880139032053030263",
+      "reserve1": "2224104166",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x91f0f34916ca4e2cce120116774b0e4fa0cdcaa8": {
+      "address": "0x91F0f34916Ca4E2cCe120116774b0e4fA0cdcaA8",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+        "symbol": "weETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "217495562334672165702",
+      "reserve1": "236459049353440318817",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x0c8bf3cb3e1f951b284ef14aa95444be86a33e2f": {
+      "address": "0x0C8bF3cb3E1f951B284EF14aa95444be86a33E2f",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        "symbol": "ezETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x2416092f143378750bb29b79eD961ab195CcEea5",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "2352205422301899374",
+      "reserve1": "2519916623948209393",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x7f670f78b17dec44d5ef68a48740b6f8849cc2e6": {
+      "address": "0x7f670f78B17dEC44d5Ef68a48740b6f8849cc2e6",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
+        "symbol": "AERO",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "639659939096189610307",
+      "reserve1": "3924689460181034273336811",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x6cdcb1c4a4d1c3c6d054b27ac5b77e89eafb971d": {
+      "address": "0x6cDcb1C4A4D1C3C6d054b27AC5B77e89eAFb971d",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
+        "symbol": "AERO",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "9715665944582",
+      "reserve1": "30917779736520266373208938",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x2c4909355b0c036840819484c3a882a95659abf3": {
+      "address": "0x2C4909355b0C036840819484c3A882A95659aBf3",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
+        "symbol": "DEGEN",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "6012365343723608831",
+      "reserve1": "18025276571028448689847016",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x214356cc4aab907244a791ca9735292860490d5a": {
+      "address": "0x214356Cc4aAb907244A791CA9735292860490D5A",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x532f27101965dd16442E59d40670FaF5eBB142E4",
+        "symbol": "BRETT",
+        "decimals": 18
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "2002692778806385",
+      "reserve1": "541595428843359220219",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x9c38b55f9a9aba91bbcedeb12bf4428f47a6a0b8": {
+      "address": "0x9c38b55f9A9Aba91BbCEDEb12bf4428f47A6a0B8",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 30,
+      "stable": false,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "274592574717",
+      "reserve1": "407430169",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xef0d374fe41fc6da7f8ed7c56c10a8f2a4f75313": {
+      "address": "0xeF0d374FE41fC6dA7f8ED7c56C10A8f2A4f75313",
+      "dex": "Aerodrome",
+      "version": "V2",
+      "token0": {
+        "address": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+        "symbol": "EURC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 5,
+      "stable": true,
+      "aaveAsset": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "143355",
+      "reserve1": "367101",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xb2cc224c1c9fee385f8ad6a55b4d94e92359dc59": {
+      "address": "0xb2cc224c1c9feE385f8ad6a55b4d94E92359DC59",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 436,
+      "tickSpacing": 100,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "14344917483990972744",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x4d69971ccd4a636c403a3c1b00c85e99bb9b5606": {
+      "address": "0x4D69971CCd4A636c403a3C1B00c85e99bB9B5606",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xB79DD08EA68A908A97220C76d19A6aA9cBDE4376",
+        "symbol": "USD+",
+        "decimals": 6
+      },
+      "fee": 400,
+      "tickSpacing": 100,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "15826592090594373",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x98c7a2338336d2d354663246f64676009c7bda97": {
+      "address": "0x98c7A2338336d2d354663246F64676009c7bDa97",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 100,
+      "tickSpacing": 1,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "1012335770714381",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x47ca96ea59c13f72745928887f84c9f52c3d7348": {
+      "address": "0x47cA96Ea59C13F72745928887f84C9F52C3D7348",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+        "symbol": "cbETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 90,
+      "tickSpacing": 1,
+      "aaveAsset": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "liquidity": "150357159817278267036337667",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x861a2922be165a5bd41b1e482b49216b465e1b5f": {
+      "address": "0x861A2922bE165a5Bd41b1E482B49216b465e1B5F",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "symbol": "wstETH",
+        "decimals": 18
+      },
+      "fee": 90,
+      "tickSpacing": 1,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "9666526169723180985148112",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xc5e47133b68c6c50298312829cb4d4f56ed43325": {
+      "address": "0xC5e47133b68c6c50298312829cB4d4f56eD43325",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "symbol": "wstETH",
+        "decimals": 18
+      },
+      "fee": 500,
+      "tickSpacing": 100,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x70acdf2ad0bf2402c957154f944c19ef4e1cbae1": {
+      "address": "0x70aCDF2Ad0bf2402C957154f944c19Ef4e1cbAE1",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 420,
+      "tickSpacing": 100,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "514113242654981998",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x4e962bb3889bf030368f56810a9c96b83cb3e778": {
+      "address": "0x4e962BB3889Bf030368F56810A9c96B83CB3E778",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 390,
+      "tickSpacing": 100,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "14536639410441",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x82321f3beb69f503380d6b233857d5c43562e2d0": {
+      "address": "0x82321f3BEB69f503380D6B233857d5C43562e2D0",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
+        "symbol": "AERO",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "tickSpacing": 200,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "256518230319886650333380",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xccd9cc53b63662088c738b8bc06e9078fb8d9ad4": {
+      "address": "0xCCd9cC53b63662088c738B8BC06E9078Fb8D9ad4",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0x940181a94A35A4569E4529A3CDfB74e38FD98631",
+        "symbol": "AERO",
+        "decimals": 18
+      },
+      "fee": 3000,
+      "tickSpacing": 200,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xbd3cd0d9d429b41f0a2e1c026552bd598294d5e0": {
+      "address": "0xbD3cd0D9d429b41F0a2e1C026552Bd598294d5E0",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+        "symbol": "weETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 85,
+      "tickSpacing": 1,
+      "aaveAsset": "0x04C0599Ae5A44757c0af6F9eC3b93da8976c150A",
+      "liquidity": "2339396055748688393823501",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xdc7ead706795eda3feda08ad519d9452badf2c0d": {
+      "address": "0xDC7EAd706795eDa3FEDa08Ad519d9452BAdF2C0d",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x2416092f143378750bb29b79eD961ab195CcEea5",
+        "symbol": "ezETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 400,
+      "tickSpacing": 1,
+      "aaveAsset": "0x2416092f143378750bb29b79eD961ab195CcEea5",
+      "liquidity": "120953674809906538116484",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xc5e51044eb7318950b1afb044fccfb25782c48c1": {
+      "address": "0xc5E51044eB7318950B1aFb044FccFb25782C48c1",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+        "symbol": "EURC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 70,
+      "tickSpacing": 1,
+      "aaveAsset": "0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42",
+      "liquidity": "3743079939862086",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xa41bc0affba7fd420d186b84899d7ab2ac57fcd1": {
+      "address": "0xa41Bc0AFfbA7Fd420d186b84899d7ab2aC57fcD1",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+        "symbol": "USDT",
+        "decimals": 6
+      },
+      "fee": 9,
+      "tickSpacing": 1,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "2325549529891043",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xafb62448929664bfccb0aae22f232520e765ba88": {
+      "address": "0xaFB62448929664Bfccb0aAe22f232520e765bA88",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed",
+        "symbol": "DEGEN",
+        "decimals": 18
+      },
+      "fee": 2451,
+      "tickSpacing": 200,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "50166982056523702766119",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x4e829f8a5213c42535ab84aa40bd4adcce9cba02": {
+      "address": "0x4e829F8A5213c42535AB84AA40BD4aDCCE9cBa02",
+      "dex": "Aerodrome Slipstream",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x532f27101965dd16442E59d40670FaF5eBB142E4",
+        "symbol": "BRETT",
+        "decimals": 18
+      },
+      "fee": 2111,
+      "tickSpacing": 200,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "1045798651785416598548282",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xb775272e537cc670c65dc852908ad47015244eaf": {
+      "address": "0xB775272E537cc670C65DC852908aD47015244EaF",
+      "dex": "PancakeSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "401899759651646910",
+      "sqrtPriceX96": "3492582978907457026188743",
+      "tick": -200599,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xe9d76696f8a35e2e2520e3125875c3af23f1e69c": {
+      "address": "0xE9d76696f8A35e2E2520e3125875C3af23f1E69c",
+      "dex": "PancakeSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 2500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "13790895537918737",
+      "sqrtPriceX96": "3489532051881447334106775",
+      "tick": -200617,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xe58b73ff901325b8b2056b29712c50237242f520": {
+      "address": "0xe58b73fF901325b8b2056B29712C50237242F520",
+      "dex": "PancakeSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "36924642962659",
+      "sqrtPriceX96": "3490302778973563484345491",
+      "tick": -200613,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xc0efc182479319ff258eca420e2647cd82d3790c": {
+      "address": "0xc0efC182479319ff258EcA420e2647cD82D3790c",
+      "dex": "PancakeSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+        "symbol": "cbETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 500,
+      "aaveAsset": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "liquidity": "8502734363472522535",
+      "sqrtPriceX96": "83958825029037960072808862792",
+      "tick": 1159,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xd974d59e30054cf1abeded0c9947b0d8baf90029": {
+      "address": "0xd974D59e30054cf1aBedeD0C9947B0D8Baf90029",
+      "dex": "PancakeSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "6946753476589366",
+      "sqrtPriceX96": "134471192803575582291226",
+      "tick": -265744,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x26e263efdc91f0d3279e2ec2bd58a7ca5c2fce62": {
+      "address": "0x26e263efdc91f0d3279E2Ec2Bd58A7Ca5C2fCE62",
+      "dex": "PancakeSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+        "symbol": "cbBTC",
+        "decimals": 8
+      },
+      "fee": 500,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "98088890010",
+      "sqrtPriceX96": "3051164177337500312067333323",
+      "tick": -65140,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xbd59a718e60bd868123c6e949c9fd97185efbdb7": {
+      "address": "0xBd59a718E60bd868123C6E949c9fd97185EFbDB7",
+      "dex": "PancakeSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+        "symbol": "wstETH",
+        "decimals": 18
+      },
+      "fee": 100,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "254028186069118191049212",
+      "sqrtPriceX96": "71563900229782476584297758970",
+      "tick": -2035,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x29ed55b18af0add137952cb3e29fb77b32fce426": {
+      "address": "0x29Ed55B18Af0Add137952CB3E29FB77B32fCE426",
+      "dex": "PancakeSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 100,
+      "aaveAsset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "liquidity": "28616128365632",
+      "sqrtPriceX96": "79219327234375242169394755510",
+      "tick": -3,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x57713f7716e0b0f65ec116912f834e49805480d2": {
+      "address": "0x57713F7716e0b0F65ec116912F834E49805480d2",
+      "dex": "SushiSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "10377304671040048",
+      "sqrtPriceX96": "3492574945722097963783800",
+      "tick": -200599,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x41595326aabe6132fc6c7ae71af087a3a9dbc9f6": {
+      "address": "0x41595326AaBe6132FC6C7aE71Af087A3A9DBC9F6",
+      "dex": "SushiSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 3000,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "437054601111287",
+      "sqrtPriceX96": "3490241957898400045203456",
+      "tick": -200613,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x22ca6d83ab887a535ae1c6011cc36ea9d1255c31": {
+      "address": "0x22ca6d83aB887A535ae1C6011cc36eA9D1255C31",
+      "dex": "SushiSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 500,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "43785171693845",
+      "sqrtPriceX96": "3490242572145637435046770",
+      "tick": -200613,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xb81b9aef36c76d740850c31c45697c83468dcb54": {
+      "address": "0xb81B9Aef36c76d740850C31C45697c83468DCB54",
+      "dex": "SushiSwap V3",
+      "version": "V3",
+      "token0": {
+        "address": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+        "symbol": "cbETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "fee": 500,
+      "aaveAsset": "0x2Ae3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22",
+      "liquidity": "3222109665275257260",
+      "sqrtPriceX96": "83960938838867753035370734116",
+      "tick": 1160,
+      "reserve0": null,
+      "reserve1": null,
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0xab067c01c7f5734da168c699ae9d23a4512c9fdb": {
+      "address": "0xab067c01C7F5734da168C699Ae9d23a4512c9FdB",
+      "dex": "BaseSwap V2",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 30,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "5521782235122355011",
+      "reserve1": "10708842227",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x41d160033c222e6f3722ec97379867324567d883": {
+      "address": "0x41d160033C222E6f3722EC97379867324567d883",
+      "dex": "BaseSwap V2",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
+        "symbol": "USDbC",
+        "decimals": 6
+      },
+      "fee": 30,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "2724875101184628795",
+      "reserve1": "5288058773",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x2f8818d1b0f3e3e295440c1c0cddf40aaa21fa87": {
+      "address": "0x2F8818D1B0f3e3E295440c1C0cDDf40aAA21fA87",
+      "dex": "SushiSwap V2",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "fee": 30,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "822086319736765801",
+      "reserve1": "1595598186",
+      "lastUpdatedBlock": 42499806,
+      "lastUpdatedTimestamp": "2026-02-22T19:36:01.290Z"
+    },
+    "0x2a8663d1e4aed8b33c19637a9f7c71a17f2b9a19": {
+      "address": "0x2a8663D1e4AED8b33C19637A9f7c71a17f2b9A19",
+      "dex": "Uniswap V2",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xc17d9a5FE99A25D6c020F750047C2eb58F00Eb07",
+        "symbol": "Yule",
+        "decimals": 18
+      },
+      "fee": null,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "7481030255699813320",
+      "reserve1": "172717516719801770587940068",
+      "lastUpdatedBlock": 42499944,
+      "lastUpdatedTimestamp": "2026-02-22T19:40:35.519Z"
+    },
+    "0x81694ea50a7584088829b192e9505a91db85710c": {
+      "address": "0x81694eA50A7584088829B192e9505a91Db85710C",
+      "dex": "Uniswap V2",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xF2d4FDa0670dc8939Db4AB506dE5A497C5B41198",
+        "symbol": "UNICLAW",
+        "decimals": 18
+      },
+      "fee": null,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "2",
+      "reserve1": "3273148",
+      "lastUpdatedBlock": 42499944,
+      "lastUpdatedTimestamp": "2026-02-22T19:40:35.519Z"
+    },
+    "0xdf439f2843bfb13c5e78549d3287c487209810d9": {
+      "address": "0xdf439f2843BFb13C5e78549D3287c487209810d9",
+      "dex": "Uniswap V2",
+      "version": "V2",
+      "token0": {
+        "address": "0x4200000000000000000000000000000000000006",
+        "symbol": "WETH",
+        "decimals": 18
+      },
+      "token1": {
+        "address": "0xaC42feC975EDff370a6AeCe925b1C2C452f48Ba3",
+        "symbol": "HC",
+        "decimals": 18
+      },
+      "fee": null,
+      "aaveAsset": "0x4200000000000000000000000000000000000006",
+      "liquidity": "0",
+      "sqrtPriceX96": null,
+      "tick": null,
+      "reserve0": "2",
+      "reserve1": "3279262",
+      "lastUpdatedBlock": 42499944,
+      "lastUpdatedTimestamp": "2026-02-22T19:40:35.519Z"
+    }
+  }
+}
