@@ -114,7 +114,7 @@ library PathEncoder {
         uint256 newLength = path.length - NEXT_OFFSET;
         bytes memory remainingPath = new bytes(newLength);
         assembly {
-            let src := add(add(path, 0x20), NEXT_OFFSET)
+            let src := add(add(path, 0x20), 23)
             let dst := add(remainingPath, 0x20)
             for { let i := 0 } lt(i, newLength) { i := add(i, 0x20) } {
                 mstore(add(dst, i), mload(add(src, i)))

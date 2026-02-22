@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "./helpers/BaseTest.sol";
+import "../src/interfaces/IUniswapV3Pool.sol";
 
 /**
  * @title SwapRoutingTest
